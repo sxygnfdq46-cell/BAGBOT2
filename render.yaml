@@ -4,14 +4,20 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    startCommand: export PYTHONPATH=/opt/render/project/src && uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     autoDeploy: true
     healthCheckPath: /api/health
+    envVars:
+      - key: PYTHONPATH
+        value: /opt/render/project/src
 
   - type: worker
     name: bagbot-worker
     env: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: python -u api/run_worker.py
+    startCommand: export PYTHONPATH=/opt/render/project/src && python -m api.run_worker
     autoDeploy: true
+    envVars:
+      - key: PYTHONPATH
+        value: /opt/render/project/src
