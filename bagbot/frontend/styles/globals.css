@@ -1,0 +1,317 @@
+/* ==========================================================================
+   Global Styles - Bagbot Trading Platform
+   ========================================================================== */
+
+/* Tailwind CSS Base Imports */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Inter Font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ==========================================================================
+   CSS Custom Properties (Design Tokens)
+   ========================================================================== */
+
+/* Light Mode Theme Variables */
+:root {
+  /* Primary Color Scale */
+  --color-primary: #A63F45;
+  --color-primary-700: #8B2E2E;
+  --color-primary-200: #E8B3B4;
+  
+  /* Accent Color Scale */
+  --color-accent: #FFC107;
+  --color-accent-700: #E6A800;
+  
+  /* Base Colors */
+  --color-black: #0A0A0A;
+  --color-text: #111214;
+  --color-surface: #F5F6F7;
+  --color-white: #FFFFFF;
+  
+  /* Semantic Colors for Trading UI */
+  --color-success: #22C55E;      /* Green for profits/buy signals */
+  --color-danger: #EF4444;       /* Red for losses/sell signals */
+  --color-warning: #F59E0B;      /* Orange for warnings */
+  --color-info: #3B82F6;         /* Blue for information */
+  
+  /* Background Variables */
+  --bg-primary: var(--color-white);
+  --bg-secondary: var(--color-surface);
+  --bg-card: var(--color-white);
+  --bg-overlay: rgba(17, 18, 20, 0.8);
+  
+  /* Text Variables */
+  --text-primary: var(--color-text);
+  --text-secondary: rgba(17, 18, 20, 0.7);
+  --text-muted: rgba(17, 18, 20, 0.5);
+  --text-inverse: var(--color-white);
+  
+  /* Border Variables */
+  --border-primary: rgba(17, 18, 20, 0.1);
+  --border-secondary: rgba(17, 18, 20, 0.05);
+  --border-accent: var(--color-primary);
+  
+  /* Shadow Variables */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode Theme Variables */
+.dark {
+  /* Primary Color Scale (Adjusted for dark mode) */
+  --color-primary: #E8B3B4;      /* Lighter primary for dark mode */
+  --color-primary-700: #A63F45;  /* Original primary as darker variant */
+  --color-primary-200: #8B2E2E;  /* Darkest primary */
+  
+  /* Accent Color Scale */
+  --color-accent: #FFC107;
+  --color-accent-700: #E6A800;
+  
+  /* Base Colors (Inverted for dark mode) */
+  --color-black: #FFFFFF;        /* Inverted for text */
+  --color-text: #F8FAFC;         /* Light text on dark background */
+  --color-surface: #1E293B;      /* Dark surface */
+  --color-white: #0F172A;        /* Dark background */
+  
+  /* Semantic Colors (Slightly adjusted for dark mode) */
+  --color-success: #16A34A;
+  --color-danger: #DC2626;
+  --color-warning: #D97706;
+  --color-info: #2563EB;
+  
+  /* Background Variables */
+  --bg-primary: #0F172A;         /* Dark primary background */
+  --bg-secondary: #1E293B;       /* Dark secondary background */
+  --bg-card: #334155;            /* Dark card background */
+  --bg-overlay: rgba(15, 23, 42, 0.9);
+  
+  /* Text Variables */
+  --text-primary: #F8FAFC;       /* Light text */
+  --text-secondary: rgba(248, 250, 252, 0.8);
+  --text-muted: rgba(248, 250, 252, 0.5);
+  --text-inverse: #0F172A;       /* Dark text for light backgrounds */
+  
+  /* Border Variables */
+  --border-primary: rgba(248, 250, 252, 0.1);
+  --border-secondary: rgba(248, 250, 252, 0.05);
+  --border-accent: var(--color-primary);
+  
+  /* Shadow Variables (Adjusted for dark mode) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   Global Base Styles
+   ========================================================================== */
+
+/* Smooth theme transitions for all elements */
+*,
+*::before,
+*::after {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* HTML and Body Base Styles */
+html {
+  scroll-behavior: smooth;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container max-width utility */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
+
+/* ==========================================================================
+   Custom Utility Classes
+   ========================================================================== */
+
+/* Background Utilities */
+.bg-primary { background-color: var(--color-primary) !important; }
+.bg-primary-700 { background-color: var(--color-primary-700) !important; }
+.bg-primary-200 { background-color: var(--color-primary-200) !important; }
+.bg-accent { background-color: var(--color-accent) !important; }
+.bg-accent-700 { background-color: var(--color-accent-700) !important; }
+.bg-surface { background-color: var(--bg-secondary) !important; }
+.bg-card { background-color: var(--bg-card) !important; }
+
+/* Text Color Utilities */
+.text-primary { color: var(--color-primary) !important; }
+.text-primary-700 { color: var(--color-primary-700) !important; }
+.text-primary-200 { color: var(--color-primary-200) !important; }
+.text-accent { color: var(--color-accent) !important; }
+.text-accent-700 { color: var(--color-accent-700) !important; }
+.text-main { color: var(--text-primary) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-inverse { color: var(--text-inverse) !important; }
+
+/* Border Color Utilities */
+.border-primary { border-color: var(--color-primary) !important; }
+.border-primary-700 { border-color: var(--color-primary-700) !important; }
+.border-primary-200 { border-color: var(--color-primary-200) !important; }
+.border-accent { border-color: var(--color-accent) !important; }
+.border-accent-700 { border-color: var(--color-accent-700) !important; }
+.border-main { border-color: var(--border-primary) !important; }
+.border-secondary { border-color: var(--border-secondary) !important; }
+
+/* Trading-Specific Utilities */
+.text-success { color: var(--color-success) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-warning { color: var(--color-warning) !important; }
+.text-info { color: var(--color-info) !important; }
+
+.bg-success { background-color: var(--color-success) !important; }
+.bg-danger { background-color: var(--color-danger) !important; }
+.bg-warning { background-color: var(--color-warning) !important; }
+.bg-info { background-color: var(--color-info) !important; }
+
+.border-success { border-color: var(--color-success) !important; }
+.border-danger { border-color: var(--color-danger) !important; }
+.border-warning { border-color: var(--color-warning) !important; }
+.border-info { border-color: var(--color-info) !important; }
+
+/* Shadow Utilities */
+.shadow-custom-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow-custom-md { box-shadow: var(--shadow-md) !important; }
+.shadow-custom-lg { box-shadow: var(--shadow-lg) !important; }
+
+/* ==========================================================================
+   Component Styles
+   ========================================================================== */
+
+/* Custom scrollbar for trading dashboards */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background-color: var(--color-primary-200);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Animation Classes
+   ========================================================================== */
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  .container {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}
