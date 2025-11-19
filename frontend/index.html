@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Trading Bot Dashboard</h1>
+        </header>
+        
+        <main>
+            <div class="status-section">
+                <h2>System Status</h2>
+                <div class="status-display">
+                    <div class="status-item">
+                        <span class="label">API Health:</span>
+                        <span id="api-status" class="status-value">Checking...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="label">Worker Status:</span>
+                        <span id="worker-status" class="status-value">Checking...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-section">
+                <h2>Worker Controls</h2>
+                <div class="button-group">
+                    <button id="start-btn" class="btn btn-start">Start Worker</button>
+                    <button id="stop-btn" class="btn btn-stop">Stop Worker</button>
+                    <button id="status-btn" class="btn btn-status">Check Status</button>
+                </div>
+            </div>
+            
+            <div class="logs-section">
+                <h2>Activity Log</h2>
+                <div id="logs" class="logs-container">
+                    <p>Dashboard loaded...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
