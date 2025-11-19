@@ -1,34 +1,27 @@
 #!/usr/bin/env python3
 """
-Simple standalone worker for Render deployment.
+STANDALONE BAGBOT WORKER - NO DEPENDENCIES
 """
 
-import threading
 import time
 import logging
-import sys
-import os
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging  
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - BAGBOT WORKER - %(message)s')
 logger = logging.getLogger(__name__)
 
-def run_worker():
-    """Standalone worker loop that logs ticks every 5 seconds."""
-    logger.info("Worker loop started")
-    tick_count = 0
-    
-    try:
-        while True:
-            tick_count += 1
-            logger.info(f"Worker tick #{tick_count}")
-            time.sleep(5.0)
-    except KeyboardInterrupt:
-        logger.info("Worker stopped by keyboard interrupt")
-    except Exception as e:
-        logger.error(f"Worker error: {e}")
-        sys.exit(1)
+print("🚀 BAGBOT WORKER STARTING...")
+logger.info("Bagbot worker initialized successfully")
 
 if __name__ == "__main__":
-    print("Starting bagbot worker...")
-    run_worker()
+    tick = 0
+    try:
+        while True:
+            tick += 1
+            logger.info(f"🤖 Bagbot worker tick #{tick} - All systems running")
+            time.sleep(10)  # 10 second intervals
+    except KeyboardInterrupt:
+        logger.info("🛑 Bagbot worker stopped")
+    except Exception as e:
+        logger.error(f"❌ Bagbot worker error: {e}")
+        exit(1)
