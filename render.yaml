@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     rootDir: bagbot
-    buildCommand: pip install -r backend/requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     autoDeploy: true
     healthCheckPath: /api/health
@@ -14,6 +14,6 @@ services:
     env: python
     plan: free
     rootDir: bagbot
-    buildCommand: pip install -r backend/requirements.txt
+    buildCommand: pip install -r requirements.txt
     startCommand: python -m api.run_worker
     autoDeploy: true
