@@ -1,0 +1,17 @@
+# Virtual env
+.venv/
+venv/
+ENV/
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# caches, logs
+*.log
+
+# Large binary libs (don't commit wheels or compiled libs)
+*.so
+*.dylib
