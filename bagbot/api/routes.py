@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from .run_worker import create_stop_event, run_loop
+from api.run_worker import create_stop_event, run_loop
 import threading
 import logging
 
