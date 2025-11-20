@@ -26,6 +26,8 @@ const initializeMockUsers = () => {
   if (typeof window === 'undefined') return;
   
   const stored = localStorage.getItem(MOCK_USERS_KEY);
+  console.log('🔍 Checking mock users storage...', stored ? 'Found' : 'Empty');
+  
   if (!stored) {
     // Create a default test user: test@bagbot.com / password123
     const defaultUsers = [
@@ -37,6 +39,7 @@ const initializeMockUsers = () => {
       }
     ];
     localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(defaultUsers));
+    console.log('✨ Created default test user: test@bagbot.com');
   }
 };
 
@@ -81,8 +84,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsLoading(true);
       setError(null);
 
+      console.log('🔐 Login attempt for:', credentials.email);
+
       // Mock authentication - check against stored users
       const mockUsers = getMockUsers();
+      console.log('📦 Found mock users:', mockUsers.length);
+      
       const foundUser = mockUsers.find(
         (u) => u.email === credentials.email && u.password === credentials.password
       );
@@ -91,8 +98,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await new Promise(resolve => setTimeout(resolve, 800));
 
       if (!foundUser) {
+        console.log('❌ User not found or password incorrect');
         throw new Error('Invalid email or password');
       }
+
+      console.log('✅ User authenticated:', foundUser.email);
 
       // Create mock user object
       const userData: User = {
@@ -111,9 +121,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem('refreshToken', mockToken);
       localStorage.setItem('user', JSON.stringify(userData));
       
+      console.log('💾 User data stored, redirecting...');
+      
       setUser(userData);
-      router.push('/');
+      
+      // Use window.location for more reliable redirect
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     } catch (err: any) {
+      console.error('🚨 Login error:', err);
       setError({
         message: err.message || 'Login failed',
         code: 'LOGIN_ERROR',

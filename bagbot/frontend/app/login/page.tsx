@@ -27,10 +27,14 @@ const LoginPage: React.FC = () => {
     setLocalError(null);
     setIsSubmitting(true);
 
+    console.log('📝 Form submitted with:', email);
+
     try {
       await login({ email, password });
+      console.log('✅ Login successful!');
       // Redirect handled by AuthContext
     } catch (err: any) {
+      console.error('❌ Login failed:', err);
       setLocalError(err.message || 'Login failed. Please try again.');
     } finally {
       setIsSubmitting(false);
