@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import StatusTile from '../components/StatusTile';
-import { ThemeProvider } from '../utils/theme';
 
 /**
  * Main Dashboard Page - integrates existing functionality with new components
  */
-const DashboardPage: React.FC = () => {
+const Dashboard: React.FC = () => {
   const [apiStatus, setApiStatus] = useState<'healthy' | 'degraded' | 'down'>('down');
   const [workerStatus, setWorkerStatus] = useState<'healthy' | 'degraded' | 'down'>('down');
   const [logs, setLogs] = useState<Array<{ timestamp: Date; message: string; type: string }>>([
@@ -233,17 +232,6 @@ const DashboardPage: React.FC = () => {
         </section>
       </div>
     </div>
-  );
-};
-
-/**
- * Dashboard with Theme Provider
- */
-const Dashboard: React.FC = () => {
-  return (
-    <ThemeProvider>
-      <DashboardPage />
-    </ThemeProvider>
   );
 };
 
