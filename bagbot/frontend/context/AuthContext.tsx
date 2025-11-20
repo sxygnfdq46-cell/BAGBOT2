@@ -16,45 +16,8 @@ import {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-
-// Mock users storage (for demo - in production this would be in a real database)
-const MOCK_USERS_KEY = 'bagbot_mock_users';
-
-// Initialize with a default test user if none exist
-const initializeMockUsers = () => {
-  if (typeof window === 'undefined') return;
-  
-  const stored = localStorage.getItem(MOCK_USERS_KEY);
-  console.log('🔍 Checking mock users storage...', stored ? 'Found' : 'Empty');
-  
-  if (!stored) {
-    // Create a default test user: test@bagbot.com / password123
-    const defaultUsers = [
-      {
-        id: 'user_default_001',
-        email: 'test@bagbot.com',
-        password: 'password123',
-        name: 'Test User',
-      }
-    ];
-    localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(defaultUsers));
-    console.log('✨ Created default test user: test@bagbot.com');
-  }
-};
-
-// Helper to get mock users from localStorage
-const getMockUsers = (): Array<{ email: string; password: string; name: string; id: string }> => {
-  if (typeof window === 'undefined') return [];
-  initializeMockUsers(); // Ensure default user exists
-  const stored = localStorage.getItem(MOCK_USERS_KEY);
-  return stored ? JSON.parse(stored) : [];
-};
-
-// Helper to save mock users
-const saveMockUsers = (users: Array<{ email: string; password: string; name: string; id: string }>) => {
-  localStorage.setItem(MOCK_USERS_KEY, JSON.stringify(users));
-};
+// API URL - Use environment variable or default to Render backend
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bagbot-web.onrender.com/api';
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -85,52 +48,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
 
       console.log('🔐 Login attempt for:', credentials.email);
-      
-      // FORCE initialize mock users first
-      initializeMockUsers();
+      console.log('🌐 API URL:', API_URL);
 
-      // Mock authentication - check against stored users
-      const mockUsers = getMockUsers();
-      console.log('📦 Found mock users:', mockUsers.length);
-      console.log('📋 Users in storage:', mockUsers.map(u => u.email).join(', '));
-      
-      const foundUser = mockUsers.find(
-        (u) => u.email.toLowerCase() === credentials.email.toLowerCase() && u.password === credentials.password
-      );
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
 
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      if (!foundUser) {
-        console.log('❌ User not found or password incorrect');
-        console.log('Tried:', credentials.email, '/', credentials.password);
-        throw new Error('Invalid email or password');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Login failed');
       }
 
-      console.log('✅ User authenticated:', foundUser.email);
-
-      // Create mock user object
-      const userData: User = {
-        id: foundUser.id,
-        email: foundUser.email,
-        name: foundUser.name,
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-      };
-
-      // Generate mock tokens
-      const mockToken = btoa(JSON.stringify({ email: foundUser.email, exp: Date.now() + 3600000 }));
+      const data: AuthResponse = await response.json();
       
+      console.log('✅ Login successful:', data.user.email);
+
       // Store tokens and user data
-      localStorage.setItem('accessToken', mockToken);
-      localStorage.setItem('refreshToken', mockToken);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('accessToken', data.tokens.accessToken);
+      localStorage.setItem('refreshToken', data.tokens.refreshToken);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      setUser(data.user);
       
       console.log('💾 User data stored, redirecting...');
       
-      setUser(userData);
-      
-      // Use window.location for more reliable redirect
+      // Use window.location for reliable redirect
       if (typeof window !== 'undefined') {
         window.location.href = '/';
       }
@@ -156,52 +102,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('Passwords do not match');
       }
 
-      // FORCE initialize mock users first
-      initializeMockUsers();
+      const response = await fetch(`${API_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          name: data.name,
+        }),
+      });
 
-      // Mock registration - check if user already exists
-      const mockUsers = getMockUsers();
-      const existingUser = mockUsers.find((u) => u.email.toLowerCase() === data.email.toLowerCase());
-
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      if (existingUser) {
-        throw new Error('Email already registered');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Registration failed');
       }
 
-      // Create new mock user
-      const newUser = {
-        id: `user_${Date.now()}`,
-        email: data.email,
-        password: data.password, // In production, this would be hashed!
-        name: data.name,
-      };
-
-      // Save to mock storage
-      mockUsers.push(newUser);
-      saveMockUsers(mockUsers);
-
-      console.log('✅ New user registered:', newUser.email);
-
-      // Create user object
-      const userData: User = {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-      };
-
-      // Generate mock tokens
-      const mockToken = btoa(JSON.stringify({ email: newUser.email, exp: Date.now() + 3600000 }));
+      const authData: AuthResponse = await response.json();
       
+      console.log('✅ New user registered:', authData.user.email);
+
       // Store tokens and user data
-      localStorage.setItem('accessToken', mockToken);
-      localStorage.setItem('refreshToken', mockToken);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('accessToken', authData.tokens.accessToken);
+      localStorage.setItem('refreshToken', authData.tokens.refreshToken);
+      localStorage.setItem('user', JSON.stringify(authData.user));
       
-      setUser(userData);
+      setUser(authData.user);
       
       // Use window.location for reliable redirect
       if (typeof window !== 'undefined') {
@@ -237,26 +164,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsLoading(true);
       setError(null);
 
-      // Mock forgot password - check if email exists
-      const mockUsers = getMockUsers();
-      const foundUser = mockUsers.find((u) => u.email === data.email);
+      const response = await fetch(`${API_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
 
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      if (!foundUser) {
-        // For security, don't reveal if email exists or not
-        console.log('Password reset requested for:', data.email);
-      } else {
-        // In production, send actual email with reset token
-        console.log('Password reset email would be sent to:', data.email);
-        // Store reset token for demo
-        const resetToken = btoa(`${data.email}_${Date.now()}`);
-        localStorage.setItem('mock_reset_token', resetToken);
-        localStorage.setItem('mock_reset_email', data.email);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to send reset email');
       }
 
-      // Success - always return success for security
+      // Success - email sent
     } catch (err: any) {
       setError({
         message: err.message || 'Failed to send reset email',
@@ -278,31 +199,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('Passwords do not match');
       }
 
-      // Mock password reset - verify token and update password
-      const storedToken = localStorage.getItem('mock_reset_token');
-      const storedEmail = localStorage.getItem('mock_reset_email');
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: data.token,
+          password: data.password,
+        }),
+      });
 
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      if (!storedToken || data.token !== storedToken) {
-        throw new Error('Invalid or expired reset token');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to reset password');
       }
-
-      // Update password in mock storage
-      const mockUsers = getMockUsers();
-      const userIndex = mockUsers.findIndex((u) => u.email === storedEmail);
-
-      if (userIndex === -1) {
-        throw new Error('User not found');
-      }
-
-      mockUsers[userIndex].password = data.password;
-      saveMockUsers(mockUsers);
-
-      // Clear reset token
-      localStorage.removeItem('mock_reset_token');
-      localStorage.removeItem('mock_reset_email');
 
       // Success - redirect to login
       router.push('/login?reset=success');
