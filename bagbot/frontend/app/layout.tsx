@@ -61,9 +61,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <h1 className="text-xl font-bold text-primary">
                   BagBot Dashboard
                 </h1>
-                <p className="text-xs text-muted">
-                  Professional Trading Platform
-                </p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-xs text-muted">
+                    Professional Trading Platform
+                  </p>
+                  {/* Professional Trader Avatar */}
+                  <div className="relative w-6 h-6 rounded-full overflow-hidden border-2 border-emerald-500/30 hover:border-emerald-500/60 transition-all animate-float" style={{ animationDelay: '0.2s' }}>
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-500/10 to-sky-500/10 flex items-center justify-center text-sm">
+                      👨‍💼
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
