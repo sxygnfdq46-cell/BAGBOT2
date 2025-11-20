@@ -129,28 +129,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="flex items-center justify-around py-2">
           <button
             onClick={() => handleNavClick('/')}
-            className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-all ${activeRoute === '/' ? 'text-amber-500' : 'text-muted'}`}
+            className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-all ${pathname === '/' ? 'text-amber-500' : 'text-muted'}`}
           >
             <span className="text-lg">📊</span>
             <span className="text-xs font-medium">Dashboard</span>
           </button>
           <button
             onClick={() => handleNavClick('/charts')}
-            className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-all ${activeRoute === '/charts' ? 'text-amber-500' : 'text-muted'}`}
+            className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-all ${pathname === '/charts' ? 'text-amber-500' : 'text-muted'}`}
           >
             <span className="text-lg">📈</span>
             <span className="text-xs font-medium">Charts</span>
           </button>
           <button
             onClick={() => handleNavClick('/signals')}
-            className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-all ${activeRoute === '/signals' ? 'text-amber-500' : 'text-muted'}`}
+            className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-all ${pathname === '/signals' ? 'text-amber-500' : 'text-muted'}`}
           >
             <span className="text-lg">⚡</span>
             <span className="text-xs font-medium">Signals</span>
           </button>
           <button
             onClick={() => handleNavClick('/logs')}
-            className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-all ${activeRoute === '/logs' ? 'text-amber-500' : 'text-muted'}`}
+            className={`flex flex-col items-center space-y-1 py-2 px-3 rounded-lg transition-all ${pathname === '/logs' ? 'text-amber-500' : 'text-muted'}`}
           >
             <span className="text-lg">📋</span>
             <span className="text-xs font-medium">Logs</span>
