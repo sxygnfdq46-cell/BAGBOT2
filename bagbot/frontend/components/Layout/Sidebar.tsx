@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  User
+  User,
+  Shield
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -54,6 +55,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
+
+  // Add admin panel to navigation if user is admin
+  const navItems = user?.role === 'admin' 
+    ? [...navigationItems, { name: 'Admin Panel', href: '/admin', icon: Shield }]
+    : navigationItems;
 
   return (
     <motion.nav
@@ -124,7 +130,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
 
         {/* Navigation Items */}
         <div className="space-y-2">
-          {navigationItems.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeRoute === item.href;
 

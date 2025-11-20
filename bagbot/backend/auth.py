@@ -21,11 +21,23 @@ DEFAULT_USER = {
     "email": "test@bagbot.com",
     "password": hashlib.sha256("password123".encode()).hexdigest(),
     "name": "Test User",
+    "role": "user",
     "created_at": datetime.utcnow().isoformat(),
 }
 
-# Initialize with default user
+# Default admin user
+DEFAULT_ADMIN = {
+    "id": "admin_default_001",
+    "email": "admin@bagbot.com",
+    "password": hashlib.sha256("admin123".encode()).hexdigest(),
+    "name": "Admin User",
+    "role": "admin",
+    "created_at": datetime.utcnow().isoformat(),
+}
+
+# Initialize with default users
 users_db["test@bagbot.com"] = DEFAULT_USER
+users_db["admin@bagbot.com"] = DEFAULT_ADMIN
 
 
 class LoginRequest(BaseModel):
@@ -52,6 +64,7 @@ class UserResponse(BaseModel):
     id: str
     email: str
     name: str
+    role: str
     created_at: str
     last_login: Optional[str] = None
 
@@ -98,6 +111,7 @@ async def register(request: RegisterRequest):
         "email": email_lower,
         "password": hashed_password,
         "name": request.name,
+        "role": "user",
         "created_at": datetime.utcnow().isoformat(),
         "last_login": datetime.utcnow().isoformat(),
     }
@@ -113,6 +127,7 @@ async def register(request: RegisterRequest):
             id=user["id"],
             email=user["email"],
             name=user["name"],
+            role=user["role"],
             created_at=user["created_at"],
             last_login=user.get("last_login"),
         ),
@@ -158,6 +173,7 @@ async def login(request: LoginRequest):
             id=user["id"],
             email=user["email"],
             name=user["name"],
+            role=user["role"],
             created_at=user["created_at"],
             last_login=user.get("last_login"),
         ),
