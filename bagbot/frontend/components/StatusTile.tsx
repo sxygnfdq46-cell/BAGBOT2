@@ -1,12 +1,17 @@
 import React from 'react';
 
 interface StatusTileProps {
-  label: string;
+  label?: string;
+  title?: string;
   status: 'healthy' | 'warning' | 'error' | 'loading' | 'inactive';
   value?: string | number;
   subtitle?: string;
+  description?: string;
   icon?: React.ReactNode;
   onClick?: () => void;
+  lastUpdated?: Date;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 const statusConfig = {
@@ -59,14 +64,20 @@ const statusConfig = {
 
 const StatusTile: React.FC<StatusTileProps> = ({
   label,
+  title,
   status,
   value,
   subtitle,
+  description,
   icon,
-  onClick
+  onClick,
+  lastUpdated,
+  className = '',
+  style
 }) => {
   const config = statusConfig[status];
   const isClickable = Boolean(onClick);
+  const displayLabel = title || label || 'Status';
 
   return (
     <div
@@ -82,7 +93,9 @@ const StatusTile: React.FC<StatusTileProps> = ({
         transition-all duration-500 ease-out
         ${isClickable ? 'cursor-pointer hover:scale-[1.02] active:scale-[0.98]' : ''}
         ${isClickable ? 'hover:border-opacity-50' : ''}
+        ${className}
       `}
+      style={style}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}
       onKeyDown={isClickable ? (e) => {
@@ -120,11 +133,11 @@ const StatusTile: React.FC<StatusTileProps> = ({
             {/* Label */}
             <div>
               <h3 className="text-sm font-medium text-white/90 tracking-wide uppercase">
-                {label}
+                {displayLabel}
               </h3>
-              {subtitle && (
+              {(subtitle || description) && (
                 <p className="text-xs text-white/50 mt-0.5">
-                  {subtitle}
+                  {description || subtitle}
                 </p>
               )}
             </div>
