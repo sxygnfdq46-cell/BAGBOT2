@@ -48,8 +48,8 @@
   --color-card: #1E2329;
   --color-card-hover: #2B3139;
   --color-border: #2B3139;
-  --color-main: #EAECEF;
-  --color-muted: #848E9C;
+  --color-main: #F5F5F5;
+  --color-muted: #B0B8C4;
   --color-hover: #252930;
 
   /* Premium Glassmorphism */
@@ -67,6 +67,12 @@
   /* Premium Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  
+  /* Mobile Touch Optimization */
+  --touch-target-min: 44px;
+  --spacing-mobile: 0.75rem;
+  --spacing-tablet: 1rem;
+  --spacing-desktop: 1.5rem;
 }
 
 /* Premium Light Theme */
@@ -442,5 +448,56 @@ a:hover {
     h1 { font-size: 2rem; }
     h2 { font-size: 1.75rem; }
     h3 { font-size: 1.25rem; }
+  }
+}
+
+/* ==========================================================================
+   Mobile-First Responsive Enhancements
+   ========================================================================== */
+
+/* Touch-friendly interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+/* Smooth momentum scrolling on iOS */
+.custom-scrollbar {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-surface);
+}
+
+/* Prevent text size adjustment on orientation change (iOS) */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Optimize font rendering for mobile */
+@media (max-width: 768px) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Tablet-specific optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .glass-card {
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

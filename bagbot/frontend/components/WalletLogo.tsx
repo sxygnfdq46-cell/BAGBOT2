@@ -13,8 +13,9 @@ const WalletLogo: React.FC<WalletLogoProps> = ({
 }) => {
   return (
     <div className={`relative ${className}`} style={{ width: size, height: size }}>
-      {/* Glow effect */}
-      <div className={`absolute inset-0 bg-gradient-to-br from-amber-500/20 to-emerald-500/20 rounded-xl blur-xl ${animated ? 'animate-pulse-glow' : ''}`}></div>
+      {/* Multi-layer glow effect for 3D depth */}
+      <div className={`absolute inset-0 bg-gradient-to-br from-amber-500/30 to-emerald-500/30 rounded-2xl blur-2xl ${animated ? 'animate-pulse-glow' : ''}`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-tr from-yellow-400/20 to-amber-600/20 rounded-xl blur-lg ${animated ? 'animate-pulse-slow' : ''}`}></div>
       
       {/* Main wallet icon */}
       <svg
@@ -23,20 +24,31 @@ const WalletLogo: React.FC<WalletLogoProps> = ({
         viewBox="0 0 48 48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="relative z-10 drop-shadow-2xl"
+        className={`relative z-10 drop-shadow-2xl ${animated ? 'hover:scale-110 transition-transform duration-300' : ''}`}
       >
-        {/* Wallet body - gradient fill */}
+        {/* Enhanced gradients */}
         <defs>
           <linearGradient id="walletGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#F0B90B" />
-            <stop offset="50%" stopColor="#FCD535" />
+            <stop offset="0%" stopColor="#FBBF24" />
+            <stop offset="30%" stopColor="#F59E0B" />
+            <stop offset="60%" stopColor="#F0B90B" />
             <stop offset="100%" stopColor="#10B981" />
           </linearGradient>
           <linearGradient id="walletShine" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="rgba(255,255,255,0)" />
-            <stop offset="50%" stopColor="rgba(255,255,255,0.3)" />
+            <stop offset="50%" stopColor="rgba(255,255,255,0.5)" />
             <stop offset="100%" stopColor="rgba(255,255,255,0)" />
           </linearGradient>
+          <linearGradient id="coinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FCD535" />
+            <stop offset="100%" stopColor="#FBBF24" />
+          </linearGradient>
+          <filter id="innerShadow">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+            <feOffset dx="0" dy="1" result="offsetblur"/>
+            <feFlood floodColor="rgba(0,0,0,0.3)"/>
+            <feComposite in2="offsetblur" operator="in"/>
+          </filter>
         </defs>
         
         {/* Main wallet shape */}
@@ -67,23 +79,34 @@ const WalletLogo: React.FC<WalletLogoProps> = ({
           fill="rgba(11, 17, 32, 0.3)"
         />
         
-        {/* Coin/money symbol */}
+        {/* Coin/money symbol - enhanced */}
+        <circle
+          cx="35"
+          cy="28"
+          r="5.5"
+          fill="url(#coinGradient)"
+          stroke="#F59E0B"
+          strokeWidth="0.5"
+          filter="url(#innerShadow)"
+        />
         <circle
           cx="35"
           cy="28"
           r="5"
-          fill="#FBBF24"
-          stroke="#0B1120"
-          strokeWidth="1.5"
+          fill="none"
+          stroke="#FBBF24"
+          strokeWidth="1"
+          opacity="0.5"
         />
         <text
           x="35"
-          y="31"
-          fontSize="8"
-          fontWeight="bold"
+          y="31.5"
+          fontSize="9"
+          fontWeight="900"
           fill="#0B1120"
           textAnchor="middle"
           fontFamily="Arial, sans-serif"
+          style={{ textShadow: '0 1px 2px rgba(255,255,255,0.5)' }}
         >
           $
         </text>
