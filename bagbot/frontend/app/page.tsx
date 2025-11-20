@@ -207,14 +207,14 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="relative px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-amber-400/30 bg-gradient-to-br from-amber-400/15 via-yellow-400/10 to-amber-500/20 backdrop-blur-md hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-300 overflow-hidden group">
+                  <div className="relative px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-[#C75B7A]/30 bg-gradient-to-br from-[#C75B7A]/20 via-[#F9D949]/10 to-[#E5B299]/15 backdrop-blur-md hover:border-[#F9D949]/50 hover:shadow-xl hover:shadow-[#C75B7A]/30 transition-all duration-300 overflow-hidden group">
                     {/* Animated shimmer overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-300/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F9D949]/15 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
                     
-                    <p className="relative text-[10px] sm:text-xs text-amber-300/90 uppercase tracking-wider mb-1 font-semibold">System Status</p>
+                    <p className="relative text-[10px] sm:text-xs text-[#FFF8E7]/90 uppercase tracking-wider mb-1 font-bold">System Status</p>
                     <div className="relative flex items-center gap-2">
                       <div className={`status-indicator ${apiStatus === 'healthy' ? 'success' : 'danger'}`}></div>
-                      <span className="text-xs sm:text-sm font-bold bg-gradient-to-r from-amber-200 to-yellow-100 bg-clip-text text-transparent">
+                      <span className="text-xs sm:text-sm font-bold bg-gradient-to-r from-[#FFF8E7] to-[#FDE68A] bg-clip-text text-transparent">
                         {apiStatus === 'healthy' ? 'Operational' : 'Offline'}
                       </span>
                     </div>
@@ -279,10 +279,10 @@ const Dashboard: React.FC = () => {
                     <button
                       key={tf}
                       onClick={() => setTimeframe(tf)}
-                      className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-medium transition-all touch-manipulation ${
+                      className={`px-3 py-2 rounded-xl text-xs font-bold transition-all touch-manipulation transform hover:scale-105 active:scale-95 ${
                         timeframe === tf
-                          ? 'bg-gradient-accent text-black shadow-md'
-                          : 'bg-surface text-muted hover:text-main active:scale-95'
+                          ? 'bg-gradient-to-r from-[#F9D949] to-[#FDE68A] text-[#0F0810] shadow-lg shadow-[#F9D949]/50'
+                          : 'bg-gradient-to-r from-[#C75B7A]/20 to-[#E5B299]/10 text-[#FFF8E7] border border-[#C75B7A]/30 hover:border-[#F9D949]/50 hover:shadow-md'
                       }`}
                     >
                       {tf}

@@ -60,23 +60,23 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
         duration: 0.3,
         ease: 'easeInOut',
       }}
-      className="relative bg-gradient-to-b from-amber-950/40 via-yellow-950/30 to-amber-900/40 backdrop-blur-xl border-r border-amber-500/20 min-h-screen shadow-2xl"
+      className="relative bg-gradient-to-b from-[#2A1721]/95 via-[#1A0E15]/95 to-[#2A1721]/95 backdrop-blur-xl border-r border-[#C75B7A]/20 min-h-screen shadow-2xl"
       style={{
-        boxShadow: '4px 0 24px rgba(251, 191, 36, 0.15), inset -1px 0 0 rgba(253, 185, 26, 0.1)',
+        boxShadow: '4px 0 30px rgba(199, 91, 122, 0.2), inset -1px 0 0 rgba(249, 217, 73, 0.1)',
       }}
     >
       {/* Collapse Toggle Button */}
       <motion.button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-8 z-50 w-6 h-6 bg-gradient-to-br from-amber-500/20 to-yellow-600/20 border border-amber-400/30 rounded-full flex items-center justify-center hover:bg-amber-500/30 transition-all shadow-md hover:shadow-amber-500/30"
-        whileHover={{ scale: 1.1 }}
+        className="absolute -right-3 top-8 z-50 w-6 h-6 bg-gradient-to-br from-[#C75B7A]/30 to-[#F9D949]/20 border border-[#E5B299]/40 rounded-full flex items-center justify-center hover:from-[#C75B7A]/50 hover:to-[#F9D949]/30 transition-all shadow-lg hover:shadow-[#F9D949]/40 backdrop-blur-sm"
+        whileHover={{ scale: 1.15, rotate: 10 }}
         whileTap={{ scale: 0.95 }}
       >
         <motion.div
           animate={{ rotate: isCollapsed ? 0 : 180 }}
           transition={{ duration: 0.3 }}
         >
-          <ChevronLeft className="w-3 h-3 text-amber-300" />
+          <ChevronLeft className="w-3 h-3 text-[#FFF8E7]" />
         </motion.div>
       </motion.button>
 
@@ -92,11 +92,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <p className="text-xs text-amber-300/80 font-medium uppercase tracking-wider">
+                <p className="text-xs text-[#F5D5C0] font-medium uppercase tracking-wider">
                   Professional Trading Platform
                 </p>
                 <div className="flex items-center gap-2 mt-2">
-                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-lg shadow-emerald-400/50" />
                   <span className="text-[10px] text-emerald-400 font-semibold uppercase">
                     Live
                   </span>
@@ -128,26 +128,26 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
                 key={item.name}
                 onClick={() => onNavigate(item.href)}
                 className={`
-                  relative w-full flex items-center px-4 py-3 rounded-lg
+                  relative w-full flex items-center px-4 py-3 rounded-xl
                   text-left transition-all duration-300 overflow-hidden group
                   ${isActive
-                    ? 'bg-gradient-to-r from-amber-400/25 via-yellow-500/20 to-amber-500/15 shadow-lg shadow-amber-500/20 border border-amber-400/30'
-                    : 'hover:bg-amber-500/10 hover:shadow-md hover:border hover:border-amber-500/20'
+                    ? 'bg-gradient-to-r from-[#C75B7A]/30 via-[#F9D949]/15 to-[#E5B299]/20 shadow-xl shadow-[#C75B7A]/20 border border-[#F9D949]/30'
+                    : 'hover:bg-gradient-to-r hover:from-[#C75B7A]/15 hover:to-[#F9D949]/10 hover:shadow-lg hover:border hover:border-[#E5B299]/20'
                   }
                 `}
-                whileHover={{ x: 4 }}
+                whileHover={{ x: 6, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 {/* Glowing Left Border (Active Item) */}
                 {isActive && (
                   <motion.div
                     layoutId="activeIndicator"
-                    className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 rounded-r-full"
+                    className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#F9D949] via-[#C75B7A] to-[#E5B299] rounded-r-full"
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3 }}
                     style={{
-                      boxShadow: '0 0 24px rgba(253, 185, 26, 0.7), 0 0 48px rgba(253, 185, 26, 0.4), 0 0 8px rgba(255, 207, 64, 0.9)',
+                      boxShadow: '0 0 20px rgba(249, 217, 73, 0.8), 0 0 40px rgba(199, 91, 122, 0.5), 0 0 8px rgba(229, 178, 153, 0.7)',
                     }}
                   />
                 )}
@@ -157,15 +157,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
                   className={`
                     relative flex-shrink-0 
                     ${isActive 
-                      ? 'text-amber-400' 
-                      : 'text-amber-300/60 group-hover:text-amber-300'
+                      ? 'text-[#F9D949]' 
+                      : 'text-[#D4B5C4] group-hover:text-[#F5D5C0]'
                     }
                   `}
-                  whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
-                  transition={{ duration: 0.3 }}
+                  whileHover={{ scale: 1.15, rotate: [0, -8, 8, 0] }}
+                  transition={{ duration: 0.4 }}
                   style={{
                     filter: isActive 
-                      ? 'drop-shadow(0 0 8px rgba(251, 191, 36, 0.6))'
+                      ? 'drop-shadow(0 0 10px rgba(249, 217, 73, 0.7))'
                       : 'none',
                   }}
                 >
@@ -191,9 +191,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
                     >
                       <span
                         className={`
-                          font-medium text-sm
-                          ${isActive ? 'text-amber-200' : 'text-amber-100/80'}
-                          group-hover:text-amber-200 transition-colors
+                          font-semibold text-sm
+                          ${isActive ? 'text-[#FFF8E7]' : 'text-[#F5E6D3]'}
+                          group-hover:text-[#FFF8E7] transition-colors
                         `}
                       >
                         {item.name}
@@ -211,8 +211,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
                           }}
                           className="relative"
                         >
-                          <div className="px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full">
-                            <span className="text-[10px] font-bold text-black">
+                          <div className="px-1.5 py-0.5 bg-gradient-to-r from-[#F9D949] to-[#FDE68A] rounded-full shadow-lg shadow-[#F9D949]/50">
+                            <span className="text-[10px] font-bold text-[#0F0810]">
                               {item.badge}
                             </span>
                           </div>
@@ -274,13 +274,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.2, delay: 0.1 }}
-              className="mt-8 pt-4 border-t border-amber-500/20"
+              className="mt-8 pt-4 border-t border-[#C75B7A]/20"
             >
               <div className="px-4 py-2">
-                <p className="text-xs text-amber-300/70 font-medium">
+                <p className="text-xs text-[#E5B299] font-medium">
                   Version 1.0.0
                 </p>
-                <p className="text-xs text-amber-300/50 mt-1">
+                <p className="text-xs text-[#D4B5C4] mt-1">
                   © 2025 BagBot
                 </p>
               </div>
