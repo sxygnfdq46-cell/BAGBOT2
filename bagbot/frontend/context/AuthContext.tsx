@@ -85,13 +85,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
 
       console.log('🔐 Login attempt for:', credentials.email);
+      
+      // FORCE initialize mock users first
+      initializeMockUsers();
 
       // Mock authentication - check against stored users
       const mockUsers = getMockUsers();
       console.log('📦 Found mock users:', mockUsers.length);
+      console.log('📋 Users in storage:', mockUsers.map(u => u.email).join(', '));
       
       const foundUser = mockUsers.find(
-        (u) => u.email === credentials.email && u.password === credentials.password
+        (u) => u.email.toLowerCase() === credentials.email.toLowerCase() && u.password === credentials.password
       );
 
       // Simulate network delay
@@ -99,6 +103,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       if (!foundUser) {
         console.log('❌ User not found or password incorrect');
+        console.log('Tried:', credentials.email, '/', credentials.password);
         throw new Error('Invalid email or password');
       }
 
@@ -151,9 +156,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('Passwords do not match');
       }
 
+      // FORCE initialize mock users first
+      initializeMockUsers();
+
       // Mock registration - check if user already exists
       const mockUsers = getMockUsers();
-      const existingUser = mockUsers.find((u) => u.email === data.email);
+      const existingUser = mockUsers.find((u) => u.email.toLowerCase() === data.email.toLowerCase());
 
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 800));
@@ -174,6 +182,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       mockUsers.push(newUser);
       saveMockUsers(mockUsers);
 
+      console.log('✅ New user registered:', newUser.email);
+
       // Create user object
       const userData: User = {
         id: newUser.id,
@@ -192,7 +202,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       localStorage.setItem('user', JSON.stringify(userData));
       
       setUser(userData);
-      router.push('/');
+      
+      // Use window.location for reliable redirect
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     } catch (err: any) {
       setError({
         message: err.message || 'Registration failed',
@@ -211,7 +225,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('user');
     
     setUser(null);
-    router.push('/landing');
+    
+    // Use window.location for reliable redirect
+    if (typeof window !== 'undefined') {
+      window.location.href = '/landing';
+    }
   };
 
   const forgotPassword = async (data: ForgotPasswordData) => {
