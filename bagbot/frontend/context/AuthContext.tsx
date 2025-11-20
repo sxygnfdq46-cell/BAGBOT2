@@ -90,17 +90,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setError(null);
 
       console.log('🔐 Login attempt for:', credentials.email);
+      console.log('🔑 Password provided:', credentials.password.substring(0, 3) + '***');
 
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 500));
 
       const users = getMockUsers();
+      console.log('👥 Total users in storage:', users.length);
+      console.log('📧 Available emails:', users.map((u: any) => u.email));
+      
       const foundUser = users.find((u: any) => 
         u.email.toLowerCase() === credentials.email.toLowerCase() &&
         u.password === credentials.password
       );
 
       if (!foundUser) {
+        console.error('❌ No matching user found');
+        console.log('🔍 Searched for:', credentials.email.toLowerCase());
+        console.log('🔍 With password:', credentials.password);
         throw new Error('Invalid email or password');
       }
 

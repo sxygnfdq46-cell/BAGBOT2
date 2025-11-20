@@ -74,12 +74,20 @@ const LoginPage: React.FC = () => {
 
           {/* Test Credentials Info */}
           <div className="mb-6 p-4 rounded-xl bg-[#F9D949]/10 border border-[#F9D949]/30">
-            <p className="text-[#F9D949] font-medium text-sm mb-2">🧪 Test Account:</p>
-            <div className="text-[#FFF8E7] text-xs space-y-1">
-              <p>Email: <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">test@bagbot.com</span></p>
-              <p>Password: <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">password123</span></p>
+            <p className="text-[#F9D949] font-medium text-sm mb-3">🧪 Test Accounts:</p>
+            <div className="text-[#FFF8E7] text-xs space-y-3">
+              <div>
+                <p className="text-[#D4B5C4] mb-1">Regular User:</p>
+                <p>Email: <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">test@bagbot.com</span></p>
+                <p>Password: <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">password123</span></p>
+              </div>
+              <div>
+                <p className="text-[#F9D949] mb-1">👑 Admin User:</p>
+                <p>Email: <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">admin@bagbot.com</span></p>
+                <p>Password: <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">admin123</span></p>
+              </div>
             </div>
-            <p className="text-[#D4B5C4] text-xs mt-2">Or register a new account below</p>
+            <p className="text-[#D4B5C4] text-xs mt-3">Or register a new account below</p>
           </div>
 
           {/* Success Message */}
