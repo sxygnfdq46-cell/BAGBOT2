@@ -8,6 +8,7 @@
 import React from 'react';
 import ThemeToggle from '../components/ThemeToggle';
 import Sidebar from '../components/Layout/Sidebar';
+import TickerTape from '../components/Dashboard/TickerTape';
 import '../styles/globals.css';
 
 interface LayoutProps {
@@ -76,6 +77,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </header>
+
+      {/* Premium Ticker Tape - Live Market Prices */}
+      <TickerTape />
 
       {/* Main Layout */}
       <div className="flex">

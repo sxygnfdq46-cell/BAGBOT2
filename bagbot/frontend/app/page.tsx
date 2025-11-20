@@ -6,6 +6,8 @@ import StatusTile from '../components/StatusTile';
 import WalletLogo from '../components/WalletLogo';
 import GlassCard from '../components/UI/Card';
 import StatsCard from '../components/Dashboard/StatsCard';
+import Sparkline from '../components/Dashboard/Sparkline';
+import ToastNotification, { Toast } from '../components/UI/ToastNotification';
 
 /**
  * Premium BagBot Trading Dashboard
@@ -32,6 +34,28 @@ const Dashboard: React.FC = () => {
     marketCap: 0
   });
   const [timeframe, setTimeframe] = useState<'24h' | '7d' | '30d'>('24h');
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  
+  // Sample sparkline data for stats
+  const sparklineData = {
+    trades: [120, 125, 122, 130, 127, 135, 134],
+    profit: [10.2, 10.8, 11.1, 11.5, 11.2, 11.8, 12.5],
+    winRate: [65, 66, 67, 68, 67, 68, 68],
+  };
+
+  const addToast = (type: 'success' | 'error' | 'info', message: string) => {
+    const newToast: Toast = {
+      id: Date.now().toString(),
+      type,
+      message,
+      duration: 5000,
+    };
+    setToasts((prev) => [...prev, newToast]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -47,6 +71,7 @@ const Dashboard: React.FC = () => {
       if (response.ok) {
         setApiStatus('healthy');
         addLog('API health check successful');
+        addToast('success', '✓ API Connected Successfully');
         return true;
       } else {
         throw new Error('API not healthy');
@@ -54,6 +79,7 @@ const Dashboard: React.FC = () => {
     } catch (error) {
       setApiStatus('error');
       addLog('API health check failed', 'error');
+      addToast('error', '✗ API Connection Failed');
       return false;
     }
   };
@@ -272,6 +298,14 @@ const Dashboard: React.FC = () => {
                     </div>
                   </div>
                   <p className="balance-text text-xl sm:text-2xl lg:text-3xl text-main mb-1">${marketData.btcPrice.toLocaleString()}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <Sparkline 
+                      data={[41200, 41800, 42100, 41900, 42500, 43100, 43684]} 
+                      color="success" 
+                      width={80} 
+                      height={28} 
+                    />
+                  </div>
                   <div className="flex items-center gap-1">
                     <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
@@ -290,6 +324,14 @@ const Dashboard: React.FC = () => {
                     </div>
                   </div>
                   <p className="balance-text text-xl sm:text-2xl lg:text-3xl text-main mb-1">${marketData.ethPrice.toLocaleString()}</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <Sparkline 
+                      data={[2450, 2400, 2380, 2420, 2350, 2290, 2318]} 
+                      color="danger" 
+                      width={80} 
+                      height={28} 
+                    />
+                  </div>
                   <div className="flex items-center gap-1">
                     <svg className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
@@ -781,6 +823,9 @@ const Dashboard: React.FC = () => {
         </section>
 
       </div>
+
+      {/* Toast Notification System */}
+      <ToastNotification toasts={toasts} removeToast={removeToast} />
     </div>
   );
 };
