@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import StatusTile from '../components/StatusTile';
 import WalletLogo from '../components/WalletLogo';
@@ -9,12 +10,41 @@ import StatsCard from '../components/Dashboard/StatsCard';
 import Sparkline from '../components/Dashboard/Sparkline';
 import ToastNotification, { Toast } from '../components/UI/ToastNotification';
 import PremiumButton from '../components/UI/PremiumButton';
+import { useAuth } from '@/context/AuthContext';
 
 /**
  * Premium BagBot Trading Dashboard
  * World-class design exceeding Binance standards
  */
 const Dashboard: React.FC = () => {
+  const { user, isLoading: authLoading } = useAuth();
+  const router = useRouter();
+  
+  // Protect the dashboard - redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      console.log('🔒 Not authenticated, redirecting to login...');
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
+  
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0F0810] via-[#1A0E15] to-[#150A12] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#C75B7A] border-t-[#F9D949] rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#FFF8E7] text-lg">Loading Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Don't render dashboard if not authenticated
+  if (!user) {
+    return null;
+  }
+  
   const [apiStatus, setApiStatus] = useState<'healthy' | 'warning' | 'error' | 'loading' | 'inactive'>('inactive');
   const [workerStatus, setWorkerStatus] = useState<'healthy' | 'warning' | 'error' | 'loading' | 'inactive'>('inactive');
   const [logs, setLogs] = useState<Array<{ timestamp: Date; message: string; type: string }>>([

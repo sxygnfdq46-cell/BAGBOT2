@@ -137,9 +137,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(userData);
         console.log('✅ New user created and logged in:', userData.email);
         
-        if (typeof window !== 'undefined') {
-          window.location.href = '/';
-        }
+        router.push('/');
         return;
       }
 
@@ -168,12 +166,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       setUser(userData);
       
-      console.log('💾 User data stored, redirecting...');
+      console.log('💾 User data stored, redirecting to dashboard...');
       
-      // Use window.location for reliable redirect
-      if (typeof window !== 'undefined') {
-        window.location.href = '/';
-      }
+      // Navigate to dashboard
+      router.push('/');
     } catch (err: any) {
       console.error('🚨 Login error:', err);
       setError({
