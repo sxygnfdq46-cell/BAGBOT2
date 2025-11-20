@@ -13,11 +13,7 @@ const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: '',
-    confirmPassword: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   
@@ -28,20 +24,12 @@ const RegisterPage: React.FC = () => {
   };
 
   const validateForm = () => {
-    if (formData.password.length < 8) {
-      setLocalError('Password must be at least 8 characters long');
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setLocalError('Passwords do not match');
-      return false;
-    }
     if (!formData.email.includes('@')) {
       setLocalError('Please enter a valid email address');
       return false;
     }
     if (formData.name.length < 2) {
-      setLocalError('Please enter your full name');
+      setLocalError('Please enter your name');
       return false;
     }
     return true;
@@ -58,7 +46,11 @@ const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await register(formData);
+      await register({
+        ...formData,
+        password: 'freepass',
+        confirmPassword: 'freepass'
+      });
       // Redirect handled by AuthContext
     } catch (err: any) {
       setLocalError(err.message || 'Registration failed. Please try again.');
@@ -149,61 +141,6 @@ const RegisterPage: React.FC = () => {
                   className="w-full pl-12 pr-4 py-3 rounded-xl bg-[#1A0E15]/50 border border-[#C75B7A]/30 text-[#FFF8E7] placeholder-[#D4B5C4]/50 focus:outline-none focus:border-[#F9D949]/50 focus:ring-2 focus:ring-[#F9D949]/20 transition-all"
                   placeholder="you@example.com"
                 />
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#FFF8E7] mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4B5C4]" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-12 pr-12 py-3 rounded-xl bg-[#1A0E15]/50 border border-[#C75B7A]/30 text-[#FFF8E7] placeholder-[#D4B5C4]/50 focus:outline-none focus:border-[#F9D949]/50 focus:ring-2 focus:ring-[#F9D949]/20 transition-all"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#D4B5C4] hover:text-[#F9D949] transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              <p className="text-xs text-[#D4B5C4] mt-1.5">Must be at least 8 characters</p>
-            </div>
-
-            {/* Confirm Password Field */}
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#FFF8E7] mb-2">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4B5C4]" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-12 pr-12 py-3 rounded-xl bg-[#1A0E15]/50 border border-[#C75B7A]/30 text-[#FFF8E7] placeholder-[#D4B5C4]/50 focus:outline-none focus:border-[#F9D949]/50 focus:ring-2 focus:ring-[#F9D949]/20 transition-all"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#D4B5C4] hover:text-[#F9D949] transition-colors"
-                >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
               </div>
             </div>
 

@@ -141,38 +141,6 @@ const LoginPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Password Field - Optional in FREE PASS mode */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#FFF8E7] mb-2">
-                Password <span className="text-green-400 text-xs">(optional - ignored in FREE PASS mode)</span>
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#D4B5C4]" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-3 rounded-xl bg-[#1A0E15]/50 border border-[#C75B7A]/30 text-[#FFF8E7] placeholder-[#D4B5C4]/50 focus:outline-none focus:border-[#F9D949]/50 focus:ring-2 focus:ring-[#F9D949]/20 transition-all opacity-50"
-                  placeholder="Not required (FREE PASS mode)"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#D4B5C4] hover:text-[#F9D949] transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Forgot Password Link - Hidden in FREE PASS mode */}
-            <div className="flex justify-end opacity-30">
-              <span className="text-sm text-[#D4B5C4] line-through">
-                Forgot password?
-              </span>
-            </div>
-
             {/* Submit Button */}
             <button
               type="submit"
