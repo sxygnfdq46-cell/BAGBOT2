@@ -20,7 +20,7 @@ services:
     name: bagbot-frontend
     env: node
     plan: free
-    rootDir: frontend
+    rootDir: bagbot/frontend
     buildCommand: npm install && npm run build
     startCommand: npm start
     autoDeploy: true
