@@ -49,7 +49,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F0810] via-[#1A0E15] to-[#150A12] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#0F0810] via-[#1A0E15] to-[#150A12] flex items-center justify-center p-3 sm:p-4">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(199,91,122,0.15)_0%,transparent_50%)]" />
@@ -63,34 +63,33 @@ const LoginPage: React.FC = () => {
         className="relative w-full max-w-md"
       >
         {/* Logo */}
-        <Link href="/landing" className="flex items-center justify-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#C75B7A] to-[#F9D949] flex items-center justify-center shadow-lg shadow-[#C75B7A]/50">
-            <Sparkles className="w-7 h-7 text-[#FFF8E7]" />
+        <Link href="/landing" className="flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-[#C75B7A] to-[#F9D949] flex items-center justify-center shadow-lg shadow-[#C75B7A]/50">
+            <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-[#FFF8E7]" />
           </div>
-          <span className="text-3xl font-bold bg-gradient-to-r from-[#FFF8E7] to-[#F9D949] bg-clip-text text-transparent">
+          <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#FFF8E7] to-[#F9D949] bg-clip-text text-transparent">
             BagBot
           </span>
         </Link>
 
         {/* Login Card */}
-        <div className="p-8 rounded-3xl bg-gradient-to-br from-[#2A1721]/90 to-[#1A0E15]/90 border border-[#C75B7A]/30 backdrop-blur-xl shadow-2xl">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-[#FFF8E7] mb-2">Welcome Back</h1>
-            <p className="text-[#D4B5C4]">Sign in to continue to your dashboard</p>
+        <div className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#2A1721]/90 to-[#1A0E15]/90 border border-[#C75B7A]/30 backdrop-blur-xl shadow-2xl">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#FFF8E7] mb-2">Welcome Back</h1>
+            <p className="text-sm sm:text-base text-[#D4B5C4]">Sign in to continue to your dashboard</p>
           </div>
 
           {/* Test Credentials Info */}
-          <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
-            <p className="text-green-400 font-bold text-sm mb-3">🎉 FREE PASS MODE - NO PASSWORD REQUIRED!</p>
-            <div className="text-[#FFF8E7] text-xs space-y-2">
+          <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-green-500/10 border border-green-500/30">
+            <p className="text-green-400 font-bold text-xs sm:text-sm mb-2 sm:mb-3">🎉 FREE PASS MODE - NO PASSWORD REQUIRED!</p>
+            <div className="text-[#FFF8E7] text-[10px] sm:text-xs space-y-1 sm:space-y-2">
               <p className="text-green-300">Just enter any email address to login instantly!</p>
-              <div className="mt-3 space-y-2">
+              <div className="mt-2 sm:mt-3 space-y-1 sm:space-y-2">
                 <p className="text-[#D4B5C4]">Quick test emails:</p>
-                <p>• <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">test@bagbot.com</span> (user)</p>
-                <p>• <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">admin@bagbot.com</span> (admin with dashboard access)</p>
-                <p>• <span className="font-mono bg-[#1A0E15]/50 px-2 py-1 rounded">yourname@example.com</span> (creates new account)</p>
+                <p>• <span className="font-mono bg-[#1A0E15]/50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs">test@bagbot.com</span></p>
+                <p>• <span className="font-mono bg-[#1A0E15]/50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs">admin@bagbot.com</span></p>
               </div>
-              <p className="text-[#F9D949] text-xs mt-3">💡 Tip: Use any email with "admin" in it to get admin access!</p>
+              <p className="text-[#F9D949] text-[10px] sm:text-xs mt-2 sm:mt-3">💡 Tip: Use any email with "admin" in it to get admin access!</p>
             </div>
           </div>
 

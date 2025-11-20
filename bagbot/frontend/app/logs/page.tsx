@@ -21,23 +21,25 @@ export default function LogsPage() {
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-[#FFF8E7] flex items-center gap-3">
-          <FileText className="w-8 h-8 text-[#F9D949]" />
+    <div className="p-3 sm:p-6 lg:p-8">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#FFF8E7] flex items-center gap-2 sm:gap-3">
+          <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-[#F9D949]" />
           Activity Logs
         </h1>
-        <p className="text-[#D4B5C4] mt-2">System activity and trading events</p>
+        <p className="text-sm sm:text-base text-[#D4B5C4] mt-1 sm:mt-2">System activity and trading events</p>
       </div>
 
-      <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-xl p-6">
-        <div className="space-y-3">
+      <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-lg sm:rounded-xl p-3 sm:p-6">
+        <div className="space-y-2 sm:space-y-3">
           {logs.map((log) => (
-            <div key={log.id} className="flex items-start gap-4 p-4 rounded-lg bg-[#1A0E15]/50 border border-[#C75B7A]/20 hover:border-[#F9D949]/30 transition-all">
-              {getIcon(log.type)}
-              <div className="flex-1">
-                <p className="text-[#FFF8E7]">{log.message}</p>
-                <p className="text-[#D4B5C4] text-sm mt-1">{log.time}</p>
+            <div key={log.id} className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-[#1A0E15]/50 border border-[#C75B7A]/20 hover:border-[#F9D949]/30 transition-all">
+              <div className="flex-shrink-0">
+                {getIcon(log.type)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm sm:text-base text-[#FFF8E7]">{log.message}</p>
+                <p className="text-[#D4B5C4] text-xs sm:text-sm mt-1">{log.time}</p>
               </div>
             </div>
           ))}
