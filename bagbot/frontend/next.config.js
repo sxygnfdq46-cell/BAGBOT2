@@ -1,11 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  distDir: 'out',
-  images: {
-    unoptimized: true
-  },
-  trailingSlash: true,
+  // No special output mode - use default Next.js server
 }
 
 module.exports = nextConfig
