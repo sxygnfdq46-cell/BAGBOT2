@@ -23,9 +23,10 @@ services:
     env: node
     plan: free
     rootDir: bagbot/frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
     autoDeploy: true
+    healthCheckPath: /health.txt
     envVars:
       - key: NODE_ENV
         value: production
