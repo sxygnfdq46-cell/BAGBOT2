@@ -37,8 +37,8 @@ const Dashboard: React.FC = () => {
     return null;
   }
   
-  const [apiStatus, setApiStatus] = useState<'healthy' | 'degraded' | 'down'>('down');
-  const [workerStatus, setWorkerStatus] = useState<'healthy' | 'degraded' | 'down'>('down');
+  const [apiStatus, setApiStatus] = useState<'healthy' | 'warning' | 'error' | 'loading' | 'inactive'>('inactive');
+  const [workerStatus, setWorkerStatus] = useState<'healthy' | 'warning' | 'error' | 'loading' | 'inactive'>('inactive');
   const [logs, setLogs] = useState<Array<{ timestamp: Date; message: string; type: string }>>([
     { timestamp: new Date(), message: 'Dashboard loaded...', type: 'info' }
   ]);
