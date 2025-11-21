@@ -24,12 +24,13 @@ services:
     plan: free
     rootDir: bagbot/frontend
     buildCommand: npm install && npm run build
-    startCommand: npm start
+    startCommand: node .next/standalone/bagbot/frontend/server.js
     autoDeploy: true
-    healthCheckPath: /health.txt
     envVars:
       - key: NODE_ENV
         value: production
+      - key: HOSTNAME
+        value: "0.0.0.0"
       - key: PORT
         sync: false
       - key: NEXT_PUBLIC_API_URL
