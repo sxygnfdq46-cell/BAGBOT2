@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { TrendingUp, TrendingDown, Activity, Home, BarChart3, Radio, FileText, Settings, LayoutDashboard, Search, SlidersHorizontal } from 'lucide-react';
+import Navigation from '../components/Navigation';
 
 export default function ChartsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,7 +16,9 @@ export default function ChartsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <>
+      <Navigation active="/charts" />
+      <div className="min-h-screen bg-black p-8">
       <div className="max-w-7xl mx-auto">
         {/* Navigation */}
         <nav className="mb-8 flex items-center gap-2 text-sm">
@@ -297,5 +300,6 @@ export default function ChartsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

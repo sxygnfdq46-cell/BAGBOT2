@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle, AlertTriangle, XCircle, Info, TrendingUp, TrendingDown, Activity, Settings, Zap, RefreshCw, Home, LayoutDashboard, BarChart3, Radio, FileText, Search } from 'lucide-react';
+import Navigation from '../components/Navigation';
 
 export default function LogsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -179,8 +180,10 @@ export default function LogsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-8">
-      <div className="max-w-7xl mx-auto">
+    <>
+      <Navigation active="/logs" />
+      <div className="min-h-screen bg-black p-8">
+        <div className="max-w-7xl mx-auto">
         {/* Navigation */}
         <nav className="mb-8 flex items-center gap-2 text-sm">
           <Link href="/" className="text-[#FFFBE7]/60 hover:text-[#F9D949] transition-colors flex items-center gap-1">
@@ -355,5 +358,6 @@ export default function LogsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

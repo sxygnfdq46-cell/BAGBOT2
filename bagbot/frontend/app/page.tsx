@@ -4,10 +4,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, TrendingUp, Shield, Brain, Target, CheckCircle, Activity } from 'lucide-react';
+import Navigation from './components/Navigation';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black">
+      <Navigation active="/" />
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
         {/* Background Effects */}

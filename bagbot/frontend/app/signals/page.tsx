@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { TrendingUp, TrendingDown, ArrowUp, ArrowDown, Activity, Target, Zap, Home, LayoutDashboard, BarChart3, Radio, FileText, Settings, SlidersHorizontal, Filter as FilterIcon } from 'lucide-react';
+import Navigation from '../components/Navigation';
 
 export default function SignalsPage() {
   const [filterType, setFilterType] = useState<'all' | 'buy' | 'sell'>('all');
@@ -114,8 +115,10 @@ export default function SignalsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black p-8">
-      <div className="max-w-7xl mx-auto">
+    <>
+      <Navigation active="/signals" />
+      <div className="min-h-screen bg-black p-8">
+        <div className="max-w-7xl mx-auto">
         {/* Navigation */}
         <nav className="mb-8 flex items-center gap-2 text-sm">
           <Link href="/" className="text-[#FFFBE7]/60 hover:text-[#F9D949] transition-colors flex items-center gap-1">
@@ -365,5 +368,6 @@ export default function SignalsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
