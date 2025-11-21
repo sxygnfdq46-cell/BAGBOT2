@@ -24,7 +24,7 @@ services:
     plan: free
     rootDir: bagbot/frontend
     buildCommand: npm install && npm run build
-    startCommand: npm start
+    startCommand: PORT=${PORT:-10000} node ./.next/standalone/server.js
     autoDeploy: true
     envVars:
       - key: NODE_ENV
