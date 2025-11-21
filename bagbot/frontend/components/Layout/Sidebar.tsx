@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { 
   LayoutDashboard, 
   TrendingUp, 
@@ -12,7 +13,8 @@ import {
   ChevronRight,
   LogOut,
   User,
-  Shield
+  Shield,
+  Home
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -30,6 +32,7 @@ interface SidebarProps {
 }
 
 const navigationItems: NavigationItem[] = [
+  { name: 'Home', href: '/', icon: Home },
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Charts', href: '/charts', icon: TrendingUp },
   { name: 'Signals', href: '/signals', icon: Zap },
@@ -135,20 +138,19 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
             const isActive = activeRoute === item.href;
 
             return (
-              <motion.button
-                key={item.name}
-                onClick={() => onNavigate(item.href)}
-                className={`
-                  relative w-full flex items-center px-4 py-3 rounded-xl
-                  text-left transition-all duration-300 overflow-hidden group
-                  ${isActive
-                    ? 'bg-gradient-to-r from-[#C75B7A]/30 via-[#F9D949]/15 to-[#E5B299]/20 shadow-xl shadow-[#C75B7A]/20 border border-[#F9D949]/30'
-                    : 'hover:bg-gradient-to-r hover:from-[#C75B7A]/15 hover:to-[#F9D949]/10 hover:shadow-lg hover:border hover:border-[#E5B299]/20'
-                  }
-                `}
-                whileHover={{ x: 6, scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+              <Link key={item.name} href={item.href}>
+                <motion.div
+                  className={`
+                    relative w-full flex items-center px-4 py-3 rounded-xl
+                    text-left transition-all duration-300 overflow-hidden group cursor-pointer
+                    ${isActive
+                      ? 'bg-gradient-to-r from-[#C75B7A]/30 via-[#F9D949]/15 to-[#E5B299]/20 shadow-xl shadow-[#C75B7A]/20 border border-[#F9D949]/30'
+                      : 'hover:bg-gradient-to-r hover:from-[#C75B7A]/15 hover:to-[#F9D949]/10 hover:shadow-lg hover:border hover:border-[#E5B299]/20'
+                    }
+                  `}
+                  whileHover={{ x: 6, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
                 {/* Glowing Left Border (Active Item) */}
                 {isActive && (
                   <motion.div
@@ -272,7 +274,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeRoute, onNavigate }) => {
                   transition={{ duration: 0.3 }}
                   style={{ zIndex: -1 }}
                 />
-              </motion.button>
+              </motion.div>
+              </Link>
             );
           })}
         </div>
