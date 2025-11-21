@@ -1,246 +1,114 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import StatusTile from '@/components/StatusTile';
+import React, { useState } from 'react';
+import { Activity, TrendingUp, DollarSign, Zap } from 'lucide-react';
 
 /**
- * Main Dashboard Page - integrates existing functionality with new components
+ * Main Trading Dashboard
  */
-const Dashboard: React.FC = () => {
-  const router = useRouter();
-  
-  const [apiStatus, setApiStatus] = useState<'healthy' | 'warning' | 'error' | 'loading' | 'inactive'>('inactive');
-  const [workerStatus, setWorkerStatus] = useState<'healthy' | 'warning' | 'error' | 'loading' | 'inactive'>('inactive');
-  const [logs, setLogs] = useState<Array<{ timestamp: Date; message: string; type: string }>>([
-    { timestamp: new Date(), message: 'Dashboard loaded...', type: 'info' }
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // API Base URL
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-  /**
-   * Add log message
-   */
-  const addLog = (message: string, type: string = 'info') => {
-    setLogs(prev => [...prev, { timestamp: new Date(), message, type }]);
-  };
-
-  /**
-   * Check API Health
-   */
-  const checkAPIHealth = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/health`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        setApiStatus('healthy');
-        addLog('API health check successful');
-        return true;
-      } else {
-        throw new Error('API not healthy');
-      }
-    } catch (error) {
-      setApiStatus('error');
-      addLog('API health check failed', 'error');
-      return false;
-    }
-  };
-
-  /**
-   * Check Worker Status
-   */
-  const checkWorkerStatus = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/worker/status`);
-      const data = await response.json();
-      
-      if (response.ok && data.status === 'running') {
-        setWorkerStatus('healthy');
-        addLog('Worker is running');
-      } else {
-        setWorkerStatus('inactive');
-        addLog('Worker is not running');
-      }
-    } catch (error) {
-      setWorkerStatus('error');
-      addLog('Worker status check failed', 'error');
-    }
-  };
-
-  /**
-   * Start Worker
-   */
-  const startWorker = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/worker/start`, {
-        method: 'POST',
-      });
-      const data = await response.json();
-      
-      if (response.ok) {
-        addLog('Worker start command sent');
-        setTimeout(checkWorkerStatus, 2000); // Check status after 2 seconds
-      } else {
-        addLog('Failed to start worker', 'error');
-      }
-    } catch (error) {
-      addLog('Error starting worker', 'error');
-    }
-    setIsLoading(false);
-  };
-
-  /**
-   * Stop Worker
-   */
-  const stopWorker = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/worker/stop`, {
-        method: 'POST',
-      });
-      const data = await response.json();
-      
-      if (response.ok) {
-        addLog('Worker stop command sent');
-        setTimeout(checkWorkerStatus, 2000); // Check status after 2 seconds
-      } else {
-        addLog('Failed to stop worker', 'error');
-      }
-    } catch (error) {
-      addLog('Error stopping worker', 'error');
-    }
-    setIsLoading(false);
-  };
-
-  /**
-   * Refresh all status
-   */
-  const refreshStatus = async () => {
-    setIsLoading(true);
-    await Promise.all([checkAPIHealth(), checkWorkerStatus()]);
-    setIsLoading(false);
-  };
-
-  // Initial load and periodic updates
-  useEffect(() => {
-    refreshStatus();
-    const interval = setInterval(refreshStatus, 30000); // Check every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
+export default function Dashboard() {
+  const [stats] = useState({
+    totalBalance: 125430.50,
+    dailyProfit: 3420.25,
+    activePositions: 12,
+    winRate: 68.5
+  });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0F0810] via-[#1A0E15] to-[#150A12]">
-      <div className="max-w-7xl mx-auto px-8 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-[#0F0810] via-[#1A0E15] to-[#150A12] p-8">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <header className="mb-12">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-[#FFF8E7] to-[#F9D949] bg-clip-text text-transparent mb-3 tracking-tight">
-            BagBot Trading Platform
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-[#FFF8E7] to-[#F9D949] bg-clip-text text-transparent mb-3">
+            Trading Dashboard
           </h1>
-          <p className="text-lg text-[#D4B5C4] font-medium">Real-time trading operations & analytics</p>
+          <p className="text-lg text-[#D4B5C4]">Real-time trading operations & analytics</p>
         </header>
 
-        {/* Status Section */}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-[#FFF8E7] mb-8 tracking-tight">System Status</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <StatusTile
-              title="API Health"
-              status={apiStatus}
-              description="Backend API connectivity and health"
-              lastUpdated={new Date()}
-              onClick={checkAPIHealth}
-            />
-            <StatusTile
-              title="Worker Status"
-              status={workerStatus}
-              description="Trading worker process status"
-              lastUpdated={new Date()}
-              onClick={checkWorkerStatus}
-            />
-          </div>
-        </section>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {[
+            { label: 'Total Balance', value: `$${stats.totalBalance.toLocaleString()}`, icon: DollarSign, color: 'from-[#4ADE80] to-[#22C55E]' },
+            { label: 'Daily Profit', value: `+$${stats.dailyProfit.toLocaleString()}`, icon: TrendingUp, color: 'from-[#F9D949] to-[#FDE68A]' },
+            { label: 'Active Positions', value: stats.activePositions, icon: Activity, color: 'from-[#C75B7A] to-[#E5B299]' },
+            { label: 'Win Rate', value: `${stats.winRate}%`, icon: Zap, color: 'from-[#60A5FA] to-[#3B82F6]' }
+          ].map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={index}
+                className="p-6 rounded-2xl bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 border border-[#C75B7A]/30 backdrop-blur-sm hover:border-[#F9D949]/50 transition-all"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-[#FFF8E7] mb-1">{stat.value}</div>
+                <div className="text-sm text-[#D4B5C4]">{stat.label}</div>
+              </div>
+            );
+          })}
+        </div>
 
-        {/* Controls Section */}
+        {/* Trading Activity */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold text-[#FFF8E7] mb-8 tracking-tight">Worker Controls</h2>
-          <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-2xl shadow-custom-lg p-8">
-            <div className="flex flex-wrap gap-5">
-              <button
-                onClick={startWorker}
-                disabled={isLoading}
-                className={`
-                  px-8 py-4 rounded-xl font-semibold text-base tracking-wide
-                  transition-smooth btn-hover shadow-custom-md
-                  ${isLoading 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                    : 'bg-[#C75B7A] text-white hover:bg-[#9F3A5E] hover:shadow-custom-lg hover:scale-105 active:scale-95'
-                  }
-                `}
-              >
-                {isLoading ? '⏳ Processing...' : '▶ Start Worker'}
-              </button>
-              
-              <button
-                onClick={stopWorker}
-                disabled={isLoading}
-                className={`
-                  px-8 py-4 rounded-xl font-semibold text-base tracking-wide
-                  transition-smooth btn-hover shadow-custom-md
-                  ${isLoading 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                    : 'bg-[#DC2626] text-white hover:bg-[#B91C1C] hover:shadow-custom-lg hover:scale-105 active:scale-95'
-                  }
-                `}
-              >
-                {isLoading ? '⏳ Processing...' : '⏹ Stop Worker'}
-              </button>
-              
-              <button
-                onClick={refreshStatus}
-                disabled={isLoading}
-                className={`
-                  px-8 py-4 rounded-xl font-semibold text-base tracking-wide
-                  transition-smooth btn-hover shadow-custom-md
-                  ${isLoading 
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-                    : 'bg-[#F9D949] text-[#0F0810] hover:bg-[#F59E0B] hover:shadow-custom-lg hover:scale-105 active:scale-95'
-                  }
-                `}
-              >
-                {isLoading ? '⏳ Processing...' : '🔄 Refresh Status'}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {/* Activity Log Section */}
-        <section>
-          <h2 className="text-3xl font-bold text-[#FFF8E7] mb-8 tracking-tight">Activity Log</h2>
-          <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-2xl shadow-custom-lg p-8">
-            <div className="h-80 overflow-y-auto space-y-3 custom-scrollbar">
-              {logs.map((log, index) => (
+          <h2 className="text-3xl font-bold text-[#FFF8E7] mb-6">Recent Trades</h2>
+          <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 border border-[#C75B7A]/30 rounded-2xl p-8">
+            <div className="space-y-4">
+              {[
+                { pair: 'BTC/USDT', type: 'BUY', price: '$43,250', profit: '+$245', time: '2 min ago' },
+                { pair: 'ETH/USDT', type: 'SELL', price: '$2,340', profit: '+$189', time: '15 min ago' },
+                { pair: 'SOL/USDT', type: 'BUY', price: '$98.50', profit: '+$67', time: '1 hour ago' },
+              ].map((trade, index) => (
                 <div
                   key={index}
-                  className={`text-sm font-mono leading-relaxed p-3 rounded-lg transition-smooth hover:bg-[#2A1721]/50 ${
-                    log.type === 'error' ? 'text-[#DC2626] bg-red-900/20' : 'text-[#D4B5C4]'
-                  }`}
+                  className="flex items-center justify-between p-4 rounded-xl bg-[#1A0E15]/50 border border-[#C75B7A]/20 hover:border-[#F9D949]/30 transition-all"
                 >
-                  <span className="text-xs font-semibold text-[#C75B7A] mr-3">
-                    {log.timestamp.toLocaleTimeString()}
-                  </span>
-                  {log.message}
+                  <div className="flex items-center gap-4">
+                    <div className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                      trade.type === 'BUY' ? 'bg-[#4ADE80]/20 text-[#4ADE80]' : 'bg-[#F87171]/20 text-[#F87171]'
+                    }`}>
+                      {trade.type}
+                    </div>
+                    <div>
+                      <div className="text-[#FFF8E7] font-semibold">{trade.pair}</div>
+                      <div className="text-sm text-[#D4B5C4]">{trade.time}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[#FFF8E7] font-semibold">{trade.price}</div>
+                    <div className="text-sm text-[#4ADE80]">{trade.profit}</div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
+
+        {/* System Status */}
+        <section>
+          <h2 className="text-3xl font-bold text-[#FFF8E7] mb-6">System Status</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { label: 'API Status', status: 'Healthy', color: 'bg-[#4ADE80]' },
+              { label: 'Worker Status', status: 'Running', color: 'bg-[#F9D949]' },
+              { label: 'Database', status: 'Connected', color: 'bg-[#60A5FA]' }
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="p-6 rounded-2xl bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 border border-[#C75B7A]/30"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`w-3 h-3 rounded-full ${item.color} animate-pulse`} />
+                  <span className="text-[#FFF8E7] font-semibold">{item.label}</span>
+                </div>
+                <div className="text-[#D4B5C4]">{item.status}</div>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

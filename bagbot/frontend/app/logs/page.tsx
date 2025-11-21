@@ -1,48 +1,43 @@
 'use client';
 
 import React from 'react';
-import { FileText, Info, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Activity, Info, AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function LogsPage() {
-  const logs = [
-    { id: 1, type: 'success', message: 'Trade executed successfully: BTC/USDT', time: '10:45:23 AM' },
-    { id: 2, type: 'info', message: 'Bot started monitoring markets', time: '10:30:15 AM' },
-    { id: 3, type: 'warning', message: 'High volatility detected in ETH/USDT', time: '10:15:42 AM' },
-    { id: 4, type: 'success', message: 'Profit target reached: +2.5%', time: '10:00:08 AM' },
-    { id: 5, type: 'info', message: 'New signal generated for SOL/USDT', time: '09:45:33 AM' },
-  ];
-
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'success': return <CheckCircle className="w-5 h-5 text-green-400" />;
-      case 'warning': return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
-      default: return <Info className="w-5 h-5 text-blue-400" />;
-    }
-  };
-
   return (
-    <div className="p-3 sm:p-6 lg:p-8">
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#FFF8E7] flex items-center gap-2 sm:gap-3">
-          <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-[#F9D949]" />
-          Activity Logs
-        </h1>
-        <p className="text-sm sm:text-base text-[#D4B5C4] mt-1 sm:mt-2">System activity and trading events</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#0F0810] via-[#1A0E15] to-[#150A12] p-8">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-12">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-[#FFF8E7] to-[#F9D949] bg-clip-text text-transparent mb-3">
+            Activity Logs
+          </h1>
+          <p className="text-lg text-[#D4B5C4]">System events & trade history</p>
+        </header>
 
-      <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-lg sm:rounded-xl p-3 sm:p-6">
-        <div className="space-y-2 sm:space-y-3">
-          {logs.map((log) => (
-            <div key={log.id} className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg bg-[#1A0E15]/50 border border-[#C75B7A]/20 hover:border-[#F9D949]/30 transition-all">
-              <div className="flex-shrink-0">
-                {getIcon(log.type)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm sm:text-base text-[#FFF8E7]">{log.message}</p>
-                <p className="text-[#D4B5C4] text-xs sm:text-sm mt-1">{log.time}</p>
-              </div>
-            </div>
-          ))}
+        <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 border border-[#C75B7A]/30 rounded-2xl p-8">
+          <div className="space-y-4">
+            {[
+              { type: 'success', message: 'Trade executed: BTC/USDT BUY @$43,250', time: '2 min ago', icon: CheckCircle, color: 'text-[#4ADE80]' },
+              { type: 'info', message: 'Price alert triggered: ETH/USDT reached $2,340', time: '15 min ago', icon: Info, color: 'text-[#60A5FA]' },
+              { type: 'warning', message: 'High volatility detected in market', time: '1 hour ago', icon: AlertTriangle, color: 'text-[#F9D949]' },
+              { type: 'success', message: 'Profit target reached: SOL/USDT +$67', time: '2 hours ago', icon: CheckCircle, color: 'text-[#4ADE80]' },
+              { type: 'info', message: 'Worker status: Running normally', time: '3 hours ago', icon: Activity, color: 'text-[#60A5FA]' }
+            ].map((log, index) => {
+              const Icon = log.icon;
+              return (
+                <div
+                  key={index}
+                  className="flex items-start gap-4 p-4 rounded-xl bg-[#1A0E15]/50 border border-[#C75B7A]/20"
+                >
+                  <Icon className={`w-5 h-5 ${log.color} flex-shrink-0 mt-0.5`} />
+                  <div className="flex-1">
+                    <p className="text-[#FFF8E7] mb-1">{log.message}</p>
+                    <p className="text-sm text-[#D4B5C4]">{log.time}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

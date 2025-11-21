@@ -1,54 +1,44 @@
 'use client';
 
 import React from 'react';
-import { Settings, Bell, Lock, User, Zap } from 'lucide-react';
+import { Settings as SettingsIcon, Bell, Shield, Palette } from 'lucide-react';
 
 export default function SettingsPage() {
   return (
-    <div className="p-3 sm:p-6 lg:p-8">
-      <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#FFF8E7] flex items-center gap-2 sm:gap-3">
-          <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-[#F9D949]" />
-          Settings
-        </h1>
-        <p className="text-sm sm:text-base text-[#D4B5C4] mt-1 sm:mt-2">Manage your trading bot preferences and account settings</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#0F0810] via-[#1A0E15] to-[#150A12] p-8">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-12">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-[#FFF8E7] to-[#F9D949] bg-clip-text text-transparent mb-3">
+            Settings
+          </h1>
+          <p className="text-lg text-[#D4B5C4]">Configure your trading preferences</p>
+        </header>
 
-      <div className="space-y-3 sm:space-y-4 lg:space-y-6">
-        {/* Profile Settings */}
-        <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-lg sm:rounded-xl p-4 sm:p-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#F9D949]" />
-            <h2 className="text-lg sm:text-xl font-bold text-[#FFF8E7]">Profile Settings</h2>
-          </div>
-          <p className="text-sm sm:text-base text-[#D4B5C4]">Manage your account information and preferences</p>
-        </div>
-
-        {/* Notifications */}
-        <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-lg sm:rounded-xl p-4 sm:p-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-[#F9D949]" />
-            <h2 className="text-lg sm:text-xl font-bold text-[#FFF8E7]">Notifications</h2>
-          </div>
-          <p className="text-sm sm:text-base text-[#D4B5C4]">Configure alerts for trading signals and system events</p>
-        </div>
-
-        {/* Security */}
-        <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-lg sm:rounded-xl p-4 sm:p-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-[#F9D949]" />
-            <h2 className="text-lg sm:text-xl font-bold text-[#FFF8E7]">Security</h2>
-          </div>
-          <p className="text-sm sm:text-base text-[#D4B5C4]">Manage password, 2FA, and API keys</p>
-        </div>
-
-        {/* Trading Bot Settings */}
-        <div className="bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 backdrop-blur-sm border border-[#C75B7A]/30 rounded-lg sm:rounded-xl p-4 sm:p-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-[#F9D949]" />
-            <h2 className="text-lg sm:text-xl font-bold text-[#FFF8E7]">Trading Bot</h2>
-          </div>
-          <p className="text-[#D4B5C4]">Configure trading strategies and risk parameters</p>
+        <div className="grid md:grid-cols-2 gap-8">
+          {[
+            { title: 'Notifications', desc: 'Manage alerts and notifications', icon: Bell, color: 'from-[#F9D949] to-[#FDE68A]' },
+            { title: 'Security', desc: 'Account security settings', icon: Shield, color: 'from-[#4ADE80] to-[#22C55E]' },
+            { title: 'Appearance', desc: 'Customize your dashboard', icon: Palette, color: 'from-[#C75B7A] to-[#E5B299]' },
+            { title: 'General', desc: 'General application settings', icon: SettingsIcon, color: 'from-[#60A5FA] to-[#3B82F6]' }
+          ].map((setting, index) => {
+            const Icon = setting.icon;
+            return (
+              <div
+                key={index}
+                className="p-8 rounded-2xl bg-gradient-to-br from-[#2A1721]/80 to-[#1A0E15]/80 border border-[#C75B7A]/30 hover:border-[#F9D949]/50 transition-all cursor-pointer group"
+              >
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${setting.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-[#FFF8E7]">{setting.title}</h3>
+                    <p className="text-[#D4B5C4]">{setting.desc}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
