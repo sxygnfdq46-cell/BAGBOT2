@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+echo "=========================================="
+echo "BAGBOT BUILD SCRIPT v2.0 - Starting build"
+echo "=========================================="
+
 echo "Installing dependencies..."
 npm install
 
