@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { TrendingUp, TrendingDown, ArrowUp, ArrowDown, Activity, Target, Zap, Home, LayoutDashboard, BarChart3, Radio, FileText, Settings, SlidersHorizontal, Filter as FilterIcon, Copy, Bell, CheckCircle } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
+import PageContent from '@/components/Layout/PageContent';
 
 export default function SignalsPage() {
   const [filterType, setFilterType] = useState<'all' | 'buy' | 'sell'>('all');
@@ -128,7 +129,7 @@ export default function SignalsPage() {
     <>
       <LiveTickerTape />
       <Navigation active="/signals" />
-      <div className="min-h-screen bg-black p-4 md:p-8 md:ml-64">
+      <PageContent>
       <div className="max-w-7xl mx-auto">
         {/* Navigation */}
         <nav className="mb-6 md:mb-8 flex items-center gap-2 text-sm">
@@ -424,8 +425,8 @@ export default function SignalsPage() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+      </PageContent>
     </>
   );
 }

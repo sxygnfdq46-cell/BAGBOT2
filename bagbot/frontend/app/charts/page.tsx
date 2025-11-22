@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { TrendingUp, TrendingDown, Activity, Home, BarChart3, Radio, FileText, Settings, LayoutDashboard, Search, SlidersHorizontal } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
+import PageContent from '@/components/Layout/PageContent';
 
 export default function ChartsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +26,7 @@ export default function ChartsPage() {
     <>
       <LiveTickerTape />
       <Navigation active="/charts" />
-      <div className="min-h-screen bg-black p-4 md:p-8 md:ml-64">
+      <PageContent>
       <div className="max-w-7xl mx-auto">
         {/* Navigation */}
         <nav className="mb-6 md:mb-8 flex items-center gap-2 text-sm">
@@ -386,7 +387,7 @@ export default function ChartsPage() {
           ))}
         </div>
       </div>
-    </div>
+      </PageContent>
     </>
   );
 }

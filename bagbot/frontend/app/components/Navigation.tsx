@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Home, LayoutDashboard, BarChart3, Radio, FileText, Settings, Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import WalletLogo from '@/components/WalletLogo';
+import { useSidebar } from '@/context/SidebarContext';
 
 interface NavigationItem {
   name: string;
@@ -26,14 +27,10 @@ const navigationItems: NavigationItem[] = [
 
 export default function Navigation({ active = '/' }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, toggleSidebar } = useSidebar();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
-  };
-
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
   };
 
   const closeMobileMenu = () => {

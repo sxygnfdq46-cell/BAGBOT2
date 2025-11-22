@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { TrendingUp, DollarSign, Target, Activity, Server, Zap, Home, BarChart3, Radio, FileText, Settings, RefreshCw, Download, Filter, Play, Pause, ChevronDown, Plus, Minus, Wifi, WifiOff, ArrowUpCircle, ArrowDownCircle, Copy } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
+import PageContent from '@/components/Layout/PageContent';
 
 export default function DashboardPage() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
@@ -140,7 +141,7 @@ export default function DashboardPage() {
     <>
       <LiveTickerTape />
       <Navigation active="/dashboard" />
-      <div className="min-h-screen bg-black p-4 md:p-8 md:ml-64">
+      <PageContent>
         <div className="max-w-7xl mx-auto">
         {/* Navigation */}
         <nav className="mb-6 md:mb-8 flex items-center gap-2 text-sm">
@@ -623,8 +624,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+      </PageContent>
     </>
   );
 }

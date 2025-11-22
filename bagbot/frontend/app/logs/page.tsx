@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { CheckCircle, AlertTriangle, XCircle, Info, TrendingUp, TrendingDown, Activity, Settings, Zap, RefreshCw, Home, LayoutDashboard, BarChart3, Radio, FileText, Search } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
+import PageContent from '@/components/Layout/PageContent';
 
 export default function LogsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -185,7 +186,7 @@ export default function LogsPage() {
     <>
       <LiveTickerTape />
       <Navigation active="/logs" />
-      <div className="min-h-screen bg-black p-4 md:p-8 md:ml-64">
+      <PageContent>
       <div className="max-w-7xl mx-auto">
         {/* Navigation */}
         <nav className="mb-6 md:mb-8 flex items-center gap-2 text-sm">
@@ -392,8 +393,8 @@ export default function LogsPage() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+      </PageContent>
     </>
   );
 }

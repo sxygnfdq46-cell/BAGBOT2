@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Sun, Moon, Key, Shield, Zap, Bell, DollarSign, TrendingUp, Save, CheckCircle, Home, LayoutDashboard, BarChart3, Radio, FileText, Settings, CreditCard, Smartphone, Wallet, Lock, Users, Download, Gift, Info, Copy } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
+import PageContent from '@/components/Layout/PageContent';
 
 export default function SettingsPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
@@ -40,7 +41,7 @@ export default function SettingsPage() {
     <>
       <LiveTickerTape />
       <Navigation active="/settings" />
-      <div className="min-h-screen bg-black p-4 md:p-8 md:ml-64">
+      <PageContent>
       <div className="max-w-5xl mx-auto">
         {/* Navigation */}
         <nav className="mb-6 md:mb-8 flex items-center gap-2 text-sm">
@@ -544,8 +545,8 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
-      </div>
-    </div>
+        </div>
+      </PageContent>
     </>
   );
 }
