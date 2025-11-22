@@ -23,7 +23,7 @@ services:
     env: node
     plan: free
     rootDir: bagbot/frontend
-    buildCommand: chmod +x build.sh && ./build.sh
+    buildCommand: npm install && npm run build
     startCommand: cd .next/standalone && HOSTNAME=0.0.0.0 PORT=$PORT node server.js
     autoDeploy: true
     envVars:
