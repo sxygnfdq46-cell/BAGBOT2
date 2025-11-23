@@ -222,3 +222,51 @@ def test_brain_continues_processing_after_strategy_returns_none():
     
     # Verify both were processed despite None returns
     assert strategy.calls == 2
+
+
+def test_brain_logs_route_start_and_success(caplog):
+    """Test that brain logs ROUTE_START and ROUTE_SUCCESS for successful routing."""
+    import logging
+    caplog.set_level(logging.INFO)
+    
+    q = JobQueue()
+    brain = Brain(job_queue=q)
+    spy = SpyStrategy()
+    register_strategy('log-test', spy)
+    
+    # Process a price update
+    q.add_job(JobType.PRICE_UPDATE, {"symbol": "BTCUSDT", "price": 50000})
+    brain.process_next_job()
+    
+    # Verify logging occurred
+    log_text = caplog.text
+    assert "ROUTE_START" in log_text
+    assert "ROUTE_SUCCESS" in log_text
+    assert "log-test" in log_text
+    assert "price_update" in log_text
+
+
+def test_brain_logs_route_fail_on_exception(caplog):
+    """Test that brain logs ROUTE_FAIL when strategy raises exception."""
+    import logging
+    caplog.set_level(logging.ERROR)
+    
+    q = JobQueue()
+    brain = Brain(job_queue=q)
+    
+    class FailingStrategy:
+        def on_price_update(self, snapshot):
+            raise ValueError("Test error")
+    
+    failing = FailingStrategy()
+    register_strategy('failing-test', failing)
+    
+    # Process a price update that will fail
+    q.add_job(JobType.PRICE_UPDATE, {"symbol": "BTCUSDT", "price": 50000})
+    brain.process_next_job()
+    
+    # Verify error logging occurred
+    log_text = caplog.text
+    assert "ROUTE_FAIL" in log_text
+    assert "failing-test" in log_text
+    assert "Test error" in log_text

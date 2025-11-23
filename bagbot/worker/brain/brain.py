@@ -1,4 +1,6 @@
 import logging
+import time
+import uuid
 from typing import Optional, Dict, Any, Union
 from bagbot.worker.brain.market_state import MarketState
 from bagbot.worker.brain.strategy_router import StrategyRouter
@@ -76,9 +78,35 @@ class TradingBrain:
         self.execution_router = ExecutionRouter()
         # Do NOT call .execute() here. No trading logic.
     
+    def _log_route_event(self, event: str, strategy: str, event_type: str, 
+                         job_id: Optional[str] = None, duration_ms: Optional[float] = None, 
+                         error: Optional[str] = None) -> None:
+        """Log structured routing events for monitoring."""
+        log_data = {
+            "evt": event,
+            "strategy": strategy,
+            "type": event_type,
+        }
+        if job_id:
+            log_data["id"] = job_id
+        if duration_ms is not None:
+            log_data["duration_ms"] = round(duration_ms, 2)
+        if error:
+            log_data["error"] = error
+        
+        # Log as structured JSON-like string
+        if event == "ROUTE_FAIL":
+            logger.error("Brain routing event: %s", log_data)
+        else:
+            logger.info("Brain routing event: %s", log_data)
+    
     def process(self, job_type: Union[str, JobType], payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         # if job_type identifies a price update, update MarketState and stop
         if job_type == "PRICE_UPDATE" or getattr(job_type, "name", None) == "PRICE_UPDATE":
+            # Generate job ID for tracking
+            job_id = str(uuid.uuid4())[:8]
+            start_time = time.time()
+            
             self.market_state.update_from_payload(payload)
             
             # Check for registered test strategies first (for test compatibility)
@@ -86,6 +114,9 @@ class TradingBrain:
             
             # Call all registered strategies with the original payload (tests expect this)
             for name, strategy_or_factory in STRATEGY_REGISTRY.items():
+                # Log route start
+                self._log_route_event("ROUTE_START", name, "price_update", job_id)
+                
                 try:
                     # If it's a factory function (test instance), call it to get the instance
                     if callable(strategy_or_factory) and not isinstance(strategy_or_factory, type):
@@ -99,7 +130,13 @@ class TradingBrain:
                     # Call on_price_update if it exists
                     if hasattr(strategy_instance, 'on_price_update'):
                         strategy_instance.on_price_update(payload)
-                except Exception:
+                    
+                    # Log success
+                    duration_ms = (time.time() - start_time) * 1000
+                    self._log_route_event("ROUTE_SUCCESS", name, "price_update", job_id, duration_ms)
+                except Exception as e:
+                    # Log failure
+                    self._log_route_event("ROUTE_FAIL", name, "price_update", job_id, error=str(e))
                     pass
             
             # Also call self.strategy if it exists (backward compatibility)
@@ -131,11 +168,18 @@ class TradingBrain:
         
         # For SIGNAL_CHECK jobs, before forwarding to the router, add the following safe invocation:
         if job_type == getattr(JobType, "SIGNAL_CHECK", "SIGNAL_CHECK") or getattr(job_type, "name", None) == "SIGNAL_CHECK":
+            # Generate job ID for tracking
+            job_id = str(uuid.uuid4())[:8]
+            start_time = time.time()
+            
             # Check for registered test strategies first
             from bagbot.worker.strategies.registry import STRATEGY_REGISTRY
             
             # Call all registered strategies
             for name, strategy_or_factory in STRATEGY_REGISTRY.items():
+                # Log route start
+                self._log_route_event("ROUTE_START", name, "signal_check", job_id)
+                
                 try:
                     # If it's a factory function (test instance), call it to get the instance
                     if callable(strategy_or_factory) and not isinstance(strategy_or_factory, type):
@@ -149,7 +193,13 @@ class TradingBrain:
                     # Call on_signal_check if it exists
                     if hasattr(strategy_instance, 'on_signal_check'):
                         strategy_instance.on_signal_check(payload)
-                except Exception:
+                    
+                    # Log success
+                    duration_ms = (time.time() - start_time) * 1000
+                    self._log_route_event("ROUTE_SUCCESS", name, "signal_check", job_id, duration_ms)
+                except Exception as e:
+                    # Log failure
+                    self._log_route_event("ROUTE_FAIL", name, "signal_check", job_id, error=str(e))
                     pass
             
             # Also call self.strategy if it exists (backward compatibility)
