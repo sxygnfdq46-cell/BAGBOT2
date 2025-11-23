@@ -58,3 +58,16 @@ def test_no_exceptions_if_strategy_raises():
     q.add_job(JobType.PRICE_UPDATE, {"symbol":"BTCUSDT","price":12345})
     brain.process_next_job()
     # assert that no exception escapes (i.e., the call completes) and the job is marked completed in queue (if queue exposes job status, assert empty or job removed).
+
+def test_brain_logs_error_when_strategy_missing():
+    """Test that brain logs error and stores error state when strategy doesn't exist."""
+    unregister_all_strategies()  # Clear registry so ai_fusion doesn't exist
+    q = JobQueue()
+    brain = Brain(job_queue=q)
+    
+    # Verify error state is set
+    assert hasattr(brain, '_init_error')
+    assert brain._init_error is not None
+    assert brain._init_error["status"] == "error"
+    assert brain._init_error["reason"] == "unknown_strategy"
+    assert brain._init_error["strategy"] == "ai_fusion"

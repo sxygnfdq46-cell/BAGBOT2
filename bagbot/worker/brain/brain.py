@@ -1,3 +1,4 @@
+import logging
 from bagbot.worker.brain.market_state import MarketState
 from bagbot.worker.brain.strategy_router import StrategyRouter
 from bagbot.worker.tasks import JobType  # only if needed where code already uses it
@@ -7,6 +8,8 @@ from bagbot.worker.executor.account import VirtualAccount
 from bagbot.worker.executor.executor import VirtualExecutor
 from bagbot.worker.indicators.engine import IndicatorEngine
 from bagbot.worker.executor.execution_router import ExecutionRouter
+
+logger = logging.getLogger(__name__)
 
 class TradingBrain:
     def __init__(self, job_queue=None, *args, **kwargs):
@@ -41,6 +44,17 @@ class TradingBrain:
             self.strategy = get_strategy("ai_fusion")  # may return None
         except Exception:
             self.strategy = None
+        
+        # Sanity check: validate strategy exists and log error if missing
+        if self.strategy is None:
+            logger.error("Brain routing: unknown strategy %s", "ai_fusion")
+            self._init_error = {
+                "status": "error",
+                "reason": "unknown_strategy",
+                "strategy": "ai_fusion"
+            }
+        else:
+            self._init_error = None
         
         # instantiate master with sample plugin from config
         try:
