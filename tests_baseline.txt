@@ -1,0 +1,107 @@
+
+==================================== ERRORS ====================================
+____________ ERROR collecting bagbot/tests/test_backtest_loader.py _____________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_backtest_loader.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_backtest_loader.py:4: in <module>
+    from backtest.loader import load_candles, slice_by_range
+E   ModuleNotFoundError: No module named 'backtest'
+______ ERROR collecting bagbot/tests/test_brain_indicator_integration.py _______
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_brain_indicator_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_brain_indicator_integration.py:1: in <module>
+    from worker.queue import JobQueue
+E   ModuleNotFoundError: No module named 'worker.queue'; 'worker' is not a package
+------------------------------- Captured stdout --------------------------------
+🚀 BAGBOT WORKER STARTING...
+___________ ERROR collecting bagbot/tests/test_brain_integration.py ____________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_brain_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_brain_integration.py:3: in <module>
+    from worker.queue import JobQueue
+E   ModuleNotFoundError: No module named 'worker.queue'; 'worker' is not a package
+____________ ERROR collecting bagbot/tests/test_decision_schema.py _____________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_decision_schema.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_decision_schema.py:1: in <module>
+    from worker.decisions.schema import Signal, signal_buy, signal_hold
+E   ModuleNotFoundError: No module named 'worker.decisions'; 'worker' is not a package
+___________ ERROR collecting bagbot/tests/test_executor_skeleton.py ____________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_executor_skeleton.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_executor_skeleton.py:1: in <module>
+    from worker.decisions.schema import signal_buy, signal_hold
+E   ModuleNotFoundError: No module named 'worker.decisions'; 'worker' is not a package
+________ ERROR collecting bagbot/tests/test_indicators_deterministic.py ________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_indicators_deterministic.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_indicators_deterministic.py:2: in <module>
+    from worker.indicators.sma import SMA
+E   ModuleNotFoundError: No module named 'worker.indicators'; 'worker' is not a package
+_________ ERROR collecting bagbot/tests/test_indicators_randomized.py __________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_indicators_randomized.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_indicators_randomized.py:2: in <module>
+    from worker.indicators.sma import SMA
+E   ModuleNotFoundError: No module named 'worker.indicators'; 'worker' is not a package
+_______ ERROR collecting bagbot/tests/test_master_plugin_integration.py ________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_master_plugin_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_master_plugin_integration.py:3: in <module>
+    from worker.strategies.plugin_registry import register_plugin
+E   ModuleNotFoundError: No module named 'worker.strategies'; 'worker' is not a package
+____________ ERROR collecting bagbot/tests/test_queue_and_runner.py ____________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_queue_and_runner.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_queue_and_runner.py:3: in <module>
+    from worker.queue import JobQueue
+E   ModuleNotFoundError: No module named 'worker.queue'; 'worker' is not a package
+____________ ERROR collecting bagbot/tests/test_virtual_executor.py ____________
+ImportError while importing test module '/Users/bagumadavis/Desktop/bagbot/bagbot/tests/test_virtual_executor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+bagbot/tests/test_virtual_executor.py:3: in <module>
+    from worker.executor.account import VirtualAccount
+E   ModuleNotFoundError: No module named 'worker.executor'; 'worker' is not a package
+=========================== short test summary info ============================
+ERROR bagbot/tests/test_backtest_loader.py
+ERROR bagbot/tests/test_brain_indicator_integration.py
+ERROR bagbot/tests/test_brain_integration.py
+ERROR bagbot/tests/test_decision_schema.py
+ERROR bagbot/tests/test_executor_skeleton.py
+ERROR bagbot/tests/test_indicators_deterministic.py
+ERROR bagbot/tests/test_indicators_randomized.py
+ERROR bagbot/tests/test_master_plugin_integration.py
+ERROR bagbot/tests/test_queue_and_runner.py
+ERROR bagbot/tests/test_virtual_executor.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 10 errors during collection !!!!!!!!!!!!!!!!!!!
+10 errors in 0.59s
