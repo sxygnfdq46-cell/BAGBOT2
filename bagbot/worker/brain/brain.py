@@ -1,8 +1,9 @@
 import logging
+from typing import Optional, Dict, Any, Union
 from bagbot.worker.brain.market_state import MarketState
 from bagbot.worker.brain.strategy_router import StrategyRouter
 from bagbot.worker.tasks import JobType  # only if needed where code already uses it
-from bagbot.worker.brain.strategy_router import get_strategy
+from bagbot.worker.brain.utils import resolve_strategy
 from bagbot.worker.strategies.master import MasterStrategy
 from bagbot.worker.executor.account import VirtualAccount
 from bagbot.worker.executor.executor import VirtualExecutor
@@ -12,7 +13,7 @@ from bagbot.worker.executor.execution_router import ExecutionRouter
 logger = logging.getLogger(__name__)
 
 class TradingBrain:
-    def __init__(self, job_queue=None, *args, **kwargs):
+    def __init__(self, job_queue: Optional[object] = None, *args, **kwargs) -> None:
         """
         Brain initializer: accept job_queue as an optional keyword for test compatibility.
         Existing init behavior must be preserved — we only ensure job_queue is captured.
@@ -40,10 +41,7 @@ class TradingBrain:
         self.router.market_state = self.market_state
         
         # wire strategy instance (do not implement trading logic here)
-        try:
-            self.strategy = get_strategy("ai_fusion")  # may return None
-        except Exception:
-            self.strategy = None
+        self.strategy = resolve_strategy("ai_fusion")  # may return None
         
         # Sanity check: validate strategy exists and log error if missing
         if self.strategy is None:
@@ -78,7 +76,7 @@ class TradingBrain:
         self.execution_router = ExecutionRouter()
         # Do NOT call .execute() here. No trading logic.
     
-    def process(self, job_type, payload):
+    def process(self, job_type: Union[str, JobType], payload: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         # if job_type identifies a price update, update MarketState and stop
         if job_type == "PRICE_UPDATE" or getattr(job_type, "name", None) == "PRICE_UPDATE":
             self.market_state.update_from_payload(payload)
@@ -174,7 +172,7 @@ class TradingBrain:
         # otherwise keep previous behavior
         self.router.handle(job_type, payload)
     
-    def get_indicator_value(self, name: str, data):
+    def get_indicator_value(self, name: str, data: Any) -> Optional[Any]:
         """Safely get indicator value."""
         if getattr(self, "indicators", None) is None:
             return None
@@ -184,7 +182,7 @@ class TradingBrain:
         except Exception:
             return None
 
-    def process_next_job(self):
+    def process_next_job(self) -> Optional[Any]:
         """
         Compatibility wrapper used by tests: attempt to process one job from self.job_queue.
         This implementation is defensive and tries several common queue / job shapes:
