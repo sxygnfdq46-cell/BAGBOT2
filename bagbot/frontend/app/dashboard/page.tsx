@@ -7,14 +7,21 @@ import Navigation from '../components/Navigation';
 import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
 import PageContent from '@/components/Layout/PageContent';
 
+// API configuration
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bagbot2-backend.onrender.com';
+
 export default function DashboardPage() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('connected');
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
   const [showExportModal, setShowExportModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  
+  // API data
+  const [apiHealth, setApiHealth] = useState<any>(null);
+  const [workerStatus, setWorkerStatus] = useState<any>(null);
   
   // Bot controls
   const [botActive, setBotActive] = useState(false);
@@ -38,11 +45,38 @@ export default function DashboardPage() {
     { type: 'trade', message: 'SELL SOL/USDT @ $98.50 completed', time: '8 min ago', id: 3 },
   ]);
 
+  // Fetch API data
+  const fetchApiData = async () => {
+    try {
+      // Fetch backend health
+      const healthRes = await fetch(`${API_BASE_URL}/api/health`);
+      const healthData = await healthRes.json();
+      setApiHealth(healthData);
+      
+      // Fetch worker status
+      const workerRes = await fetch(`${API_BASE_URL}/api/worker/status`);
+      const workerData = await workerRes.json();
+      setWorkerStatus(workerData);
+      
+      // Update connection status based on successful fetch
+      setConnectionStatus('connected');
+      setLastUpdate(new Date());
+    } catch (error) {
+      console.error('Failed to fetch API data:', error);
+      setConnectionStatus('disconnected');
+    }
+  };
+
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchApiData();
+  }, []);
+
   // Auto-refresh every 30 seconds
   useEffect(() => {
     if (autoRefresh) {
       const interval = setInterval(() => {
-        setLastUpdate(new Date());
+        fetchApiData();
       }, 30000);
       return () => clearInterval(interval);
     }
@@ -89,11 +123,49 @@ export default function DashboardPage() {
   }, [botActive]);
 
   const handleManualRefresh = () => {
-    setLastUpdate(new Date());
+    fetchApiData();
   };
   
-  const handleBotToggle = () => {
-    setBotActive(!botActive);
+  const handleBotToggle = async () => {
+    try {
+      if (!botActive) {
+        // Start worker
+        const res = await fetch(`${API_BASE_URL}/api/worker/start`, { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          setBotActive(true);
+          setLiveUpdates(prev => [{
+            type: 'alert',
+            message: 'Worker started successfully',
+            time: 'Just now',
+            id: Date.now()
+          }, ...prev.slice(0, 9)]);
+        }
+      } else {
+        // Stop worker
+        const res = await fetch(`${API_BASE_URL}/api/worker/stop`, { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          setBotActive(false);
+          setLiveUpdates(prev => [{
+            type: 'alert',
+            message: 'Worker stopped',
+            time: 'Just now',
+            id: Date.now()
+          }, ...prev.slice(0, 9)]);
+        }
+      }
+      // Refresh worker status
+      fetchApiData();
+    } catch (error) {
+      console.error('Failed to toggle worker:', error);
+      setLiveUpdates(prev => [{
+        type: 'alert',
+        message: 'Failed to toggle worker',
+        time: 'Just now',
+        id: Date.now()
+      }, ...prev.slice(0, 9)]);
+    }
   };
   
   const strategies = [
@@ -102,38 +174,40 @@ export default function DashboardPage() {
     { id: 'aggressive', name: 'Aggressive', desc: 'High risk, maximum returns' },
     { id: 'scalping', name: 'Scalping', desc: 'Quick trades, frequent signals' },
   ];
+  
+  // Stats with real API data
   const stats = [
     { 
-      label: 'Total Trades', 
-      value: '12,547', 
-      change: '+234 today',
-      icon: Target,
-      color: 'from-[#7C2F39] to-[#C75B7A]',
-      bgColor: 'from-[#7C2F39]/10 to-black'
+      label: 'Backend Status', 
+      value: apiHealth?.status === 'api healthy' ? '✅ Healthy' : '❌ Down', 
+      change: apiHealth ? 'Connected' : 'Disconnected',
+      icon: Server,
+      color: apiHealth?.status === 'api healthy' ? 'from-[#4ADE80] to-[#22C55E]' : 'from-[#7C2F39] to-[#C75B7A]',
+      bgColor: apiHealth?.status === 'api healthy' ? 'from-[#4ADE80]/10 to-black' : 'from-[#7C2F39]/10 to-black'
     },
     { 
-      label: 'Profit Today', 
-      value: '+$4,287', 
-      change: '+12.4%',
-      icon: DollarSign,
-      color: 'from-[#4ADE80] to-[#22C55E]',
-      bgColor: 'from-[#4ADE80]/10 to-black'
+      label: 'Worker Status', 
+      value: workerStatus?.status === 'running' ? '🟢 Running' : workerStatus?.status === 'stopped' ? '🔴 Stopped' : '⚪ Unknown', 
+      change: workerStatus?.uptime ? `Uptime: ${workerStatus.uptime}` : 'Not started',
+      icon: Zap,
+      color: workerStatus?.status === 'running' ? 'from-[#4ADE80] to-[#22C55E]' : 'from-[#F9D949] to-[#FDE68A]',
+      bgColor: workerStatus?.status === 'running' ? 'from-[#4ADE80]/10 to-black' : 'from-[#F9D949]/10 to-black'
     },
     { 
-      label: 'Win Rate', 
-      value: '73.2%', 
-      change: '+2.1% this week',
-      icon: TrendingUp,
+      label: 'Connection', 
+      value: connectionStatus === 'connected' ? '🟢 Connected' : '🔴 Offline', 
+      change: connectionStatus === 'connected' ? 'Real-time updates' : 'Reconnecting...',
+      icon: connectionStatus === 'connected' ? Wifi : WifiOff,
+      color: connectionStatus === 'connected' ? 'from-[#60A5FA] to-[#3B82F6]' : 'from-[#7C2F39] to-[#C75B7A]',
+      bgColor: connectionStatus === 'connected' ? 'from-[#60A5FA]/10 to-black' : 'from-[#7C2F39]/10 to-black'
+    },
+    { 
+      label: 'Last Update', 
+      value: lastUpdate.toLocaleTimeString(), 
+      change: autoRefresh ? 'Auto-refreshing' : 'Manual mode',
+      icon: RefreshCw,
       color: 'from-[#F9D949] to-[#FDE68A]',
       bgColor: 'from-[#F9D949]/10 to-black'
-    },
-    { 
-      label: 'Active Positions', 
-      value: '18', 
-      change: '6 pending',
-      icon: Activity,
-      color: 'from-[#60A5FA] to-[#3B82F6]',
-      bgColor: 'from-[#60A5FA]/10 to-black'
     }
   ];
 
@@ -621,6 +695,40 @@ export default function DashboardPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+
+        {/* API Debug Section */}
+        <div className="mt-8 p-6 rounded-2xl bg-black/50 border border-[#7C2F39]/30">
+          <h2 className="text-xl font-bold text-[#F9D949] mb-4">🔍 API Debug Info</h2>
+          
+          <div className="space-y-4">
+            {/* Backend Health */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">Backend Health (/api/health)</h3>
+              <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#4ADE80] border border-[#7C2F39]/20">
+                {apiHealth ? JSON.stringify(apiHealth, null, 2) : 'Loading...'}
+              </pre>
+            </div>
+
+            {/* Worker Status */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">Worker Status (/api/worker/status)</h3>
+              <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#F9D949] border border-[#7C2F39]/20">
+                {workerStatus ? JSON.stringify(workerStatus, null, 2) : 'Loading...'}
+              </pre>
+            </div>
+
+            {/* Connection Info */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">Connection Info</h3>
+              <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#60A5FA] border border-[#7C2F39]/20">
+{`API Base URL: ${API_BASE_URL}
+Connection Status: ${connectionStatus}
+Last Update: ${lastUpdate.toLocaleString()}
+Auto Refresh: ${autoRefresh ? 'Enabled' : 'Disabled'}`}
+              </pre>
             </div>
           </div>
         </div>
