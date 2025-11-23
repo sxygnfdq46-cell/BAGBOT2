@@ -6,9 +6,8 @@ import { TrendingUp, DollarSign, Target, Activity, Server, Zap, Home, BarChart3,
 import Navigation from '../components/Navigation';
 import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
 import PageContent from '@/components/Layout/PageContent';
-
-// API configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://bagbot2-backend.onrender.com';
+import api from '@/utils/apiService';
+import { getUserFriendlyError } from '@/utils/api';
 
 export default function DashboardPage() {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
@@ -19,12 +18,17 @@ export default function DashboardPage() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   
-  // API data
+  // API data with loading/error states
   const [apiHealth, setApiHealth] = useState<any>(null);
   const [workerStatus, setWorkerStatus] = useState<any>(null);
+  const [isLoadingHealth, setIsLoadingHealth] = useState(false);
+  const [isLoadingWorker, setIsLoadingWorker] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [workerError, setWorkerError] = useState<string | null>(null);
   
   // Bot controls
   const [botActive, setBotActive] = useState(false);
+  const [isTogglingWorker, setIsTogglingWorker] = useState(false);
   const [stakeAmount, setStakeAmount] = useState('1000');
   const [selectedStrategy, setSelectedStrategy] = useState('conservative');
   
@@ -45,25 +49,39 @@ export default function DashboardPage() {
     { type: 'trade', message: 'SELL SOL/USDT @ $98.50 completed', time: '8 min ago', id: 3 },
   ]);
 
-  // Fetch API data
+  // Fetch API data with proper error handling
   const fetchApiData = async () => {
+    setIsLoadingHealth(true);
+    setIsLoadingWorker(true);
+    setApiError(null);
+    setWorkerError(null);
+    
     try {
       // Fetch backend health
-      const healthRes = await fetch(`${API_BASE_URL}/api/health`);
-      const healthData = await healthRes.json();
-      setApiHealth(healthData);
-      
-      // Fetch worker status
-      const workerRes = await fetch(`${API_BASE_URL}/api/worker/status`);
-      const workerData = await workerRes.json();
-      setWorkerStatus(workerData);
-      
-      // Update connection status based on successful fetch
+      const healthResponse = await api.apiHealth();
+      setApiHealth(healthResponse.data);
       setConnectionStatus('connected');
       setLastUpdate(new Date());
     } catch (error) {
-      console.error('Failed to fetch API data:', error);
+      console.error('Failed to fetch API health:', error);
+      setApiError(getUserFriendlyError(error));
       setConnectionStatus('disconnected');
+    } finally {
+      setIsLoadingHealth(false);
+    }
+    
+    try {
+      // Fetch worker status
+      const workerResponse = await api.getWorkerStatus();
+      setWorkerStatus(workerResponse.data);
+      
+      // Update botActive based on worker status
+      setBotActive(workerResponse.data.status === 'running');
+    } catch (error) {
+      console.error('Failed to fetch worker status:', error);
+      setWorkerError(getUserFriendlyError(error));
+    } finally {
+      setIsLoadingWorker(false);
     }
   };
 
@@ -126,45 +144,62 @@ export default function DashboardPage() {
     fetchApiData();
   };
   
+  // Optimistic UI for worker toggle with proper error handling
   const handleBotToggle = async () => {
+    if (isTogglingWorker) return; // Prevent double-clicks
+    
+    setIsTogglingWorker(true);
+    const previousState = botActive;
+    
     try {
       if (!botActive) {
+        // Optimistically update UI
+        setBotActive(true);
+        
         // Start worker
-        const res = await fetch(`${API_BASE_URL}/api/worker/start`, { method: 'POST' });
-        const data = await res.json();
-        if (res.ok) {
-          setBotActive(true);
-          setLiveUpdates(prev => [{
-            type: 'alert',
-            message: 'Worker started successfully',
-            time: 'Just now',
-            id: Date.now()
-          }, ...prev.slice(0, 9)]);
-        }
+        const response = await api.startWorker();
+        
+        setLiveUpdates(prev => [{
+          type: 'alert',
+          message: `✅ ${response.data.status}`,
+          time: 'Just now',
+          id: Date.now()
+        }, ...prev.slice(0, 9)]);
       } else {
+        // Optimistically update UI
+        setBotActive(false);
+        
         // Stop worker
-        const res = await fetch(`${API_BASE_URL}/api/worker/stop`, { method: 'POST' });
-        const data = await res.json();
-        if (res.ok) {
-          setBotActive(false);
-          setLiveUpdates(prev => [{
-            type: 'alert',
-            message: 'Worker stopped',
-            time: 'Just now',
-            id: Date.now()
-          }, ...prev.slice(0, 9)]);
-        }
+        const response = await api.stopWorker();
+        
+        setLiveUpdates(prev => [{
+          type: 'alert',
+          message: `⏹ ${response.data.status}`,
+          time: 'Just now',
+          id: Date.now()
+        }, ...prev.slice(0, 9)]);
       }
-      // Refresh worker status
-      fetchApiData();
+      
+      // Refresh worker status to confirm
+      setTimeout(() => {
+        fetchApiData();
+      }, 1000);
+      
     } catch (error) {
+      // Revert optimistic update on error
+      setBotActive(previousState);
+      
+      const errorMsg = getUserFriendlyError(error);
       console.error('Failed to toggle worker:', error);
+      
       setLiveUpdates(prev => [{
         type: 'alert',
-        message: 'Failed to toggle worker',
+        message: `❌ Error: ${errorMsg}`,
         time: 'Just now',
         id: Date.now()
       }, ...prev.slice(0, 9)]);
+    } finally {
+      setIsTogglingWorker(false);
     }
   };
   
@@ -175,20 +210,34 @@ export default function DashboardPage() {
     { id: 'scalping', name: 'Scalping', desc: 'Quick trades, frequent signals' },
   ];
   
-  // Stats with real API data
+  // Stats with real API data and loading states
   const stats = [
     { 
       label: 'Backend Status', 
-      value: apiHealth?.status === 'api healthy' ? '✅ Healthy' : '❌ Down', 
-      change: apiHealth ? 'Connected' : 'Disconnected',
+      value: isLoadingHealth 
+        ? '⏳ Loading...' 
+        : apiError 
+          ? '❌ Error' 
+          : apiHealth?.status === 'api healthy' 
+            ? '✅ Healthy' 
+            : '❌ Down', 
+      change: isLoadingHealth ? 'Checking...' : apiError || (apiHealth ? 'Connected' : 'Disconnected'),
       icon: Server,
       color: apiHealth?.status === 'api healthy' ? 'from-[#4ADE80] to-[#22C55E]' : 'from-[#7C2F39] to-[#C75B7A]',
       bgColor: apiHealth?.status === 'api healthy' ? 'from-[#4ADE80]/10 to-black' : 'from-[#7C2F39]/10 to-black'
     },
     { 
       label: 'Worker Status', 
-      value: workerStatus?.status === 'running' ? '🟢 Running' : workerStatus?.status === 'stopped' ? '🔴 Stopped' : '⚪ Unknown', 
-      change: workerStatus?.uptime ? `Uptime: ${workerStatus.uptime}` : 'Not started',
+      value: isLoadingWorker 
+        ? '⏳ Loading...' 
+        : workerError 
+          ? '❌ Error' 
+          : workerStatus?.status === 'running' 
+            ? '🟢 Running' 
+            : workerStatus?.status === 'stopped' 
+              ? '🔴 Stopped' 
+              : '⚪ Unknown', 
+      change: isLoadingWorker ? 'Checking...' : workerError || (workerStatus?.uptime ? `Uptime: ${workerStatus.uptime}` : 'Not started'),
       icon: Zap,
       color: workerStatus?.status === 'running' ? 'from-[#4ADE80] to-[#22C55E]' : 'from-[#F9D949] to-[#FDE68A]',
       bgColor: workerStatus?.status === 'running' ? 'from-[#4ADE80]/10 to-black' : 'from-[#F9D949]/10 to-black'
@@ -204,7 +253,7 @@ export default function DashboardPage() {
     { 
       label: 'Last Update', 
       value: lastUpdate.toLocaleTimeString(), 
-      change: autoRefresh ? 'Auto-refreshing' : 'Manual mode',
+      change: autoRefresh ? 'Auto-refreshing (30s)' : 'Manual mode',
       icon: RefreshCw,
       color: 'from-[#F9D949] to-[#FDE68A]',
       bgColor: 'from-[#F9D949]/10 to-black'
@@ -381,13 +430,21 @@ export default function DashboardPage() {
                   <label className="block text-sm font-semibold text-[#FFFBE7] mb-3">Bot Status</label>
                   <button
                     onClick={handleBotToggle}
+                    disabled={isTogglingWorker}
                     className={`w-full px-6 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 depth-5d-2 emboss-5d ${
-                      botActive
-                        ? 'bg-gradient-to-r from-[#EF4444] to-[#DC2626] text-white hover:from-[#DC2626] hover:to-[#B91C1C] shadow-[0_0_30px_rgba(239,68,68,0.5)]'
-                        : 'bg-gradient-to-r from-[#4ADE80] to-[#22C55E] text-black hover:from-[#22C55E] hover:to-[#16A34A] shadow-[0_0_30px_rgba(74,222,128,0.3)]'
+                      isTogglingWorker
+                        ? 'bg-gradient-to-r from-[#6B7280] to-[#4B5563] text-white cursor-wait opacity-75'
+                        : botActive
+                          ? 'bg-gradient-to-r from-[#EF4444] to-[#DC2626] text-white hover:from-[#DC2626] hover:to-[#B91C1C] shadow-[0_0_30px_rgba(239,68,68,0.5)]'
+                          : 'bg-gradient-to-r from-[#4ADE80] to-[#22C55E] text-black hover:from-[#22C55E] hover:to-[#16A34A] shadow-[0_0_30px_rgba(74,222,128,0.3)]'
                     }`}
                   >
-                    {botActive ? (
+                    {isTogglingWorker ? (
+                      <>
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : botActive ? (
                       <>
                         <Pause className="w-5 h-5" />
                         Stop Bot
@@ -706,17 +763,23 @@ export default function DashboardPage() {
           <div className="space-y-4">
             {/* Backend Health */}
             <div>
-              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">Backend Health (/api/health)</h3>
+              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">
+                Backend Health (/api/health)
+                {isLoadingHealth && <span className="ml-2 text-xs text-[#FFFBE7]/50">Loading...</span>}
+              </h3>
               <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#4ADE80] border border-[#7C2F39]/20">
-                {apiHealth ? JSON.stringify(apiHealth, null, 2) : 'Loading...'}
+                {apiError ? `Error: ${apiError}` : (apiHealth ? JSON.stringify(apiHealth, null, 2) : 'Waiting...')}
               </pre>
             </div>
 
             {/* Worker Status */}
             <div>
-              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">Worker Status (/api/worker/status)</h3>
+              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">
+                Worker Status (/api/worker/status)
+                {isLoadingWorker && <span className="ml-2 text-xs text-[#FFFBE7]/50">Loading...</span>}
+              </h3>
               <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#F9D949] border border-[#7C2F39]/20">
-                {workerStatus ? JSON.stringify(workerStatus, null, 2) : 'Loading...'}
+                {workerError ? `Error: ${workerError}` : (workerStatus ? JSON.stringify(workerStatus, null, 2) : 'Waiting...')}
               </pre>
             </div>
 
@@ -724,11 +787,15 @@ export default function DashboardPage() {
             <div>
               <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">Connection Info</h3>
               <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#60A5FA] border border-[#7C2F39]/20">
-{`API Base URL: ${API_BASE_URL}
+{`API Base URL: ${process.env.NEXT_PUBLIC_API_URL || 'https://bagbot2-backend.onrender.com'}
 Connection Status: ${connectionStatus}
 Last Update: ${lastUpdate.toLocaleString()}
-Auto Refresh: ${autoRefresh ? 'Enabled' : 'Disabled'}`}
+Auto Refresh: ${autoRefresh ? 'Enabled (30s)' : 'Disabled'}
+Worker Toggle: ${isTogglingWorker ? 'In Progress' : 'Ready'}`}
               </pre>
+            </div>
+          </div>
+        </div>
             </div>
           </div>
         </div>
