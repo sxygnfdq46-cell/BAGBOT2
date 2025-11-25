@@ -225,7 +225,7 @@ export default function SignupPage() {
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <NeonBadge color="cyan">Most Popular</NeonBadge>
+                  <NeonBadge variant="cyan">Most Popular</NeonBadge>
                 </div>
               )}
 
