@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { NeonCard } from '@/components/ui/neon-card';
-import { NeonButton } from '@/components/ui/neon-button';
+import { NeonCard } from '@/components/neon/NeonCard';
+import { NeonButton } from '@/components/neon/NeonButton';
 import { AIOrb } from '@/components/ui/ai-orb';
 import { DataStream } from '@/components/ui/data-stream';
 import { AlertPanel } from '@/components/ui/alert-panel';
