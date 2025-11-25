@@ -180,7 +180,7 @@ export default function AIHelperPage() {
       </div>
 
       {/* Quick Prompts */}
-      <NeonCard glowColor="cyan" className="p-6">
+      <NeonCard glow="cyan" className="p-6">
         <h2 className="text-lg font-semibold text-gray-200 mb-4 flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-cyan-400" />
           Quick Actions
@@ -190,7 +190,6 @@ export default function AIHelperPage() {
             <NeonButton
               key={idx}
               variant="outline"
-              glowColor={getCategoryColor(prompt.category)}
               onClick={() => handleQuickPrompt(prompt.prompt)}
               className="flex items-center gap-2 justify-start h-auto py-3 px-4"
             >
@@ -202,7 +201,7 @@ export default function AIHelperPage() {
       </NeonCard>
 
       {/* Chat Container */}
-      <NeonCard glowColor="magenta" className="p-0 overflow-hidden">
+      <NeonCard glow="magenta" className="p-0 overflow-hidden">
         <div className="h-[500px] flex flex-col">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
@@ -290,7 +289,6 @@ export default function AIHelperPage() {
               />
               <NeonButton
                 onClick={handleSendMessage}
-                glowColor="cyan"
                 className="px-6"
                 disabled={!input.trim() || isThinking}
               >
