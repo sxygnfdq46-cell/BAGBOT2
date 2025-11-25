@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface StatusIndicatorProps {
-  status: 'online' | 'offline' | 'connecting' | 'error';
+  status: 'online' | 'offline' | 'connecting' | 'error' | 'processing' | 'active';
   label?: string;
   showPulse?: boolean;
   size?: 'sm' | 'md' | 'lg';
@@ -36,6 +36,16 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
       text: 'text-red-400',
       label: 'Error',
     },
+    processing: {
+      color: 'bg-cyan-500',
+      text: 'text-cyan-400',
+      label: 'Processing...',
+    },
+    active: {
+      color: 'bg-green-500',
+      text: 'text-green-400',
+      label: 'Active',
+    },
   };
 
   const sizeClasses = {
@@ -49,13 +59,15 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="relative flex items-center justify-center">
-        {showPulse && status === 'online' && (
+        {showPulse && (status === 'online' || status === 'active') && (
           <span
             className={`absolute inline-flex h-full w-full rounded-full ${config.color} opacity-75 animate-ping`}
           />
         )}
         <span
-          className={`relative inline-flex rounded-full ${sizeClasses[size]} ${config.color}`}
+          className={`relative inline-flex rounded-full ${sizeClasses[size]} ${config.color} ${
+            (status === 'processing' || status === 'connecting') ? 'animate-pulse' : ''
+          }`}
         />
       </div>
       {(label || config.label) && (
