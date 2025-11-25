@@ -1,9 +1,30 @@
+"use client";
 import React from "react";
-export function AlertPanel({ title, message }: { title: string; message: string }) {
+
+interface AlertPanelProps {
+  type?: "info" | "warning" | "error" | "success";
+  title: string;
+  message: string;
+}
+
+export function AlertPanel({
+  type = "info",
+  title,
+  message,
+}: AlertPanelProps) {
+  const color =
+    type === "info"
+      ? "bg-blue-500"
+      : type === "warning"
+      ? "bg-yellow-500"
+      : type === "error"
+      ? "bg-red-500"
+      : "bg-green-500";
+
   return (
-    <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 backdrop-blur-md shadow-lg">
-      <h3 className="text-lg font-bold">{title}</h3>
-      <p className="text-sm opacity-80">{message}</p>
+    <div className={`p-4 rounded-lg bg-opacity-20 border ${color} border-opacity-40`}>
+      <h3 className="font-bold text-white">{title}</h3>
+      <p className="text-white text-sm opacity-90">{message}</p>
     </div>
   );
 }
