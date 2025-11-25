@@ -9,7 +9,7 @@ import { cn } from '@/utils/cn';
 interface NeonButtonProps {
   children: React.ReactNode;
   className?: string;
-  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
   loading?: boolean;
@@ -21,7 +21,8 @@ const variants = {
   primary: 'bg-cyan-500/20 border-cyan-400/50 text-cyan-400 hover:bg-cyan-500/30 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(0,240,255,0.5)]',
   secondary: 'bg-magenta-500/20 border-magenta-400/50 text-magenta-400 hover:bg-magenta-500/30 hover:border-magenta-400 hover:shadow-[0_0_20px_rgba(255,0,255,0.5)]',
   danger: 'bg-red-500/20 border-red-400/50 text-red-400 hover:bg-red-500/30 hover:border-red-400 hover:shadow-[0_0_20px_rgba(255,0,0,0.5)]',
-  success: 'bg-green-500/20 border-green-400/50 text-green-400 hover:bg-green-500/30 hover:border-green-400 hover:shadow-[0_0_20px_rgba(0,255,0,0.5)]'
+  success: 'bg-green-500/20 border-green-400/50 text-green-400 hover:bg-green-500/30 hover:border-green-400 hover:shadow-[0_0_20px_rgba(0,255,0,0.5)]',
+  outline: 'bg-transparent border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/10 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(0,240,255,0.3)]'
 };
 
 const sizes = {
