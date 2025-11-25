@@ -14,8 +14,11 @@ Base = declarative_base()
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./bagbot.db")
 
 # Fix postgres:// to postgresql:// for SQLAlchemy 2.0+
+# Render provides postgres:// but SQLAlchemy 2.0+ requires postgresql://
 if DATABASE_URL.startswith("postgres://"):
+    print(f"[DB] Converting postgres:// to postgresql:// for SQLAlchemy 2.0+ compatibility")
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    print(f"[DB] Database URL converted successfully")
 
 # Create engine
 engine = create_engine(
