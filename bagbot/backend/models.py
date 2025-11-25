@@ -13,6 +13,16 @@ Base = declarative_base()
 # Database URL from environment or default to SQLite
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./bagbot.db")
 
+# Debug: Print DATABASE_URL info (without credentials)
+if "postgresql://" in DATABASE_URL or "postgres://" in DATABASE_URL:
+    # Extract host for debugging (safely)
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(DATABASE_URL)
+        print(f"[DB] PostgreSQL detected - Host: {parsed.hostname}, Port: {parsed.port}, Database: {parsed.path[1:]}")
+    except Exception as e:
+        print(f"[DB] Could not parse DATABASE_URL: {e}")
+
 # Fix postgres:// to postgresql:// for SQLAlchemy 2.0+
 # Render provides postgres:// but SQLAlchemy 2.0+ requires postgresql://
 if DATABASE_URL.startswith("postgres://"):
@@ -20,10 +30,19 @@ if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     print(f"[DB] Database URL converted successfully")
 
+# Check for invalid placeholder hostname
+if "hostname" in DATABASE_URL and "postgresql" in DATABASE_URL:
+    print("[DB] WARNING: DATABASE_URL contains placeholder 'hostname' - falling back to SQLite")
+    print("[DB] Please configure a proper PostgreSQL database in Render dashboard")
+    DATABASE_URL = "sqlite:///./bagbot.db"
+
+print(f"[DB] Using database: {'PostgreSQL' if 'postgresql' in DATABASE_URL else 'SQLite'}")
+
 # Create engine
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {},
+    pool_pre_ping=True  # Verify connections before using them
 )
 
 # Create session factory
