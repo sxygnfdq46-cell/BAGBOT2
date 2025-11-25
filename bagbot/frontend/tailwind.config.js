@@ -14,70 +14,63 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Institutional maroon palette
-        maroon: {
-          50: '#FFF5F7',
-          100: '#FFE3E9',
-          200: '#FFC7D4',
-          300: '#FF9AB0',
-          400: '#FF5C7C',
-          500: '#8A3A3A',
-          600: '#7C2F39',
-          700: '#6B2845',
-          800: '#5A1F3A',
-          900: '#491830',
+        // Sci-Fi Neon Theme - Primary Colors
+        neon: {
+          cyan: '#00F6FF',      // Primary neon cyan
+          purple: '#9B5CFF',    // Secondary neon purple
+          pink: '#FF007A',      // Accent neon pink
+          magenta: '#FF00FF',   // Bright magenta
+          yellow: '#FFFF00',    // Neon yellow
+          green: '#00FF00',     // Neon green
+          orange: '#FF6600',    // Neon orange
+          blue: '#0080FF',      // Neon blue
         },
-        // Premium gold/yellow accent
-        gold: {
-          50: '#FFFBEB',
-          100: '#FEF3C7',
-          200: '#FDE68A',
-          300: '#FCD34D',
-          400: '#FBBF24',
-          500: '#F9D949',
-          600: '#E6A800',
-          700: '#D97706',
-          800: '#B45309',
-          900: '#92400E',
+        // Dark backgrounds for sci-fi theme
+        dark: {
+          50: '#1A1A1A',
+          100: '#0F0F0F',
+          200: '#0A0A0A',
+          300: '#050505',
+          400: '#030303',
+          500: '#000000',
         },
-        // Clean neutrals
-        neutral: {
-          50: '#FAFAFA',
-          100: '#F5F5F5',
-          200: '#E5E5E5',
-          300: '#D4D4D4',
-          400: '#A3A3A3',
-          500: '#737373',
-          600: '#525252',
-          700: '#404040',
-          800: '#262626',
-          900: '#171717',
-          950: '#0A0A0A',
+        // Glass morphism panels
+        glass: {
+          light: 'rgba(255, 255, 255, 0.04)',
+          lighter: 'rgba(255, 255, 255, 0.08)',
+          border: 'rgba(0, 255, 255, 0.25)',
+          'border-strong': 'rgba(0, 255, 255, 0.5)',
         },
-        // Keep for backwards compatibility
+        // Backwards compatibility
         primary: {
-          DEFAULT: '#8A3A3A',
-          700: '#7C2F39',
-          200: '#FFC7D4'
+          DEFAULT: '#00F6FF',
+          light: '#33F8FF',
+          dark: '#00C4CC',
+        },
+        secondary: {
+          DEFAULT: '#9B5CFF',
+          light: '#B57FFF',
+          dark: '#7A3FCC',
         },
         accent: {
-          DEFAULT: '#F9D949',
-          700: '#E6A800'
+          DEFAULT: '#FF007A',
+          light: '#FF3395',
+          dark: '#CC0062',
         },
-        black: '#0A0A0A',
-        text: '#111214',
-        surface: '#F5F6F7',
-        white: '#FFFFFF',
-        // Neon colors for futuristic UI
-        neon: {
-          cyan: '#00f0ff',
-          magenta: '#ff00ff',
-          yellow: '#ffff00',
-          green: '#00ff00',
-          orange: '#ff6600',
-          blue: '#0080ff',
-          pink: '#ff0080'
-        }
+        // Neutrals with neon tint
+        neutral: {
+          50: '#F5F5F5',
+          100: '#E5E5E5',
+          200: '#D4D4D4',
+          300: '#A3A3A3',
+          400: '#737373',
+          500: '#525252',
+          600: '#404040',
+          700: '#2A2A2A',
+          800: '#1F1F1F',
+          900: '#141414',
+          950: '#0A0A0A',
+        },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
@@ -155,11 +148,15 @@ module.exports = {
         '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
         'none': 'none',
-        // Institutional shadows with maroon tint
-        'maroon-sm': '0 2px 4px 0 rgba(138, 58, 58, 0.2)',
-        'maroon-md': '0 6px 20px rgba(138, 58, 58, 0.25)',
-        'maroon-lg': '0 16px 40px rgba(138, 58, 58, 0.3)',
-        'gold-glow': '0 0 20px rgba(249, 217, 73, 0.4)',
+        // Sci-Fi Neon Glow Effects
+        'neon-cyan': '0 0 20px rgba(0, 246, 255, 0.5), 0 0 40px rgba(0, 246, 255, 0.3)',
+        'neon-cyan-strong': '0 0 30px rgba(0, 246, 255, 0.8), 0 0 60px rgba(0, 246, 255, 0.5)',
+        'neon-purple': '0 0 20px rgba(155, 92, 255, 0.5), 0 0 40px rgba(155, 92, 255, 0.3)',
+        'neon-purple-strong': '0 0 30px rgba(155, 92, 255, 0.8), 0 0 60px rgba(155, 92, 255, 0.5)',
+        'neon-pink': '0 0 20px rgba(255, 0, 122, 0.5), 0 0 40px rgba(255, 0, 122, 0.3)',
+        'neon-pink-strong': '0 0 30px rgba(255, 0, 122, 0.8), 0 0 60px rgba(255, 0, 122, 0.5)',
+        'neon-card': '0 8px 32px 0 rgba(0, 246, 255, 0.15)',
+        'neon-panel': 'inset 0 0 0 1px rgba(0, 255, 255, 0.25), 0 8px 24px rgba(0, 0, 0, 0.5)',
       },
       animation: {
         'spin': 'spin 1s linear infinite',
@@ -197,8 +194,20 @@ module.exports = {
           '100%': { transform: 'translateX(0)', opacity: '1' },
         },
         glow: {
-          '0%, 100%': { boxShadow: '0 0 20px rgba(0, 240, 255, 0.5)' },
-          '50%': { boxShadow: '0 0 40px rgba(0, 240, 255, 0.8)' },
+          '0%, 100%': { boxShadow: '0 0 20px rgba(0, 246, 255, 0.5), 0 0 40px rgba(0, 246, 255, 0.3)' },
+          '50%': { boxShadow: '0 0 30px rgba(0, 246, 255, 0.8), 0 0 60px rgba(0, 246, 255, 0.5)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(155, 92, 255, 0.4)' },
+          '50%': { boxShadow: '0 0 40px rgba(155, 92, 255, 0.8)' },
+        },
+        'neon-flicker': {
+          '0%, 100%': { opacity: '1' },
+          '41%': { opacity: '1' },
+          '42%': { opacity: '0.8' },
+          '43%': { opacity: '1' },
+          '45%': { opacity: '0.9' },
+          '46%': { opacity: '1' },
         },
       },
       screens: {
