@@ -10,7 +10,7 @@ import { cn } from '@/utils/cn';
 interface NeonCardProps {
   children: React.ReactNode;
   className?: string;
-  glow?: 'cyan' | 'magenta' | 'yellow' | 'green' | 'orange' | 'none';
+  glow?: 'cyan' | 'magenta' | 'yellow' | 'green' | 'orange' | 'red' | 'none';
   pulse?: boolean;
   hover?: boolean;
   onClick?: () => void;
@@ -22,6 +22,7 @@ const glowColors = {
   yellow: 'shadow-[0_0_20px_rgba(255,255,0,0.3)] hover:shadow-[0_0_30px_rgba(255,255,0,0.5)]',
   green: 'shadow-[0_0_20px_rgba(0,255,0,0.3)] hover:shadow-[0_0_30px_rgba(0,255,0,0.5)]',
   orange: 'shadow-[0_0_20px_rgba(255,102,0,0.3)] hover:shadow-[0_0_30px_rgba(255,102,0,0.5)]',
+  red: 'shadow-[0_0_20px_rgba(255,0,0,0.3)] hover:shadow-[0_0_30px_rgba(255,0,0,0.5)]',
   none: ''
 };
 
@@ -31,6 +32,7 @@ const borderColors = {
   yellow: 'border-yellow-400/50',
   green: 'border-green-400/50',
   orange: 'border-orange-400/50',
+  red: 'border-red-400/50',
   none: 'border-neutral-700/50'
 };
 
