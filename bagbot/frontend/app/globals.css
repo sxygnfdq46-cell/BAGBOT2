@@ -3,6 +3,8 @@
    Futuristic Design System with Cyberpunk Aesthetics
    ========================================================================== */
 
+@import "@/styles/neon-theme.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
