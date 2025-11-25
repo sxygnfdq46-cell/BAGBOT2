@@ -13,7 +13,7 @@ aiohttp==3.9.3
 # Database
 SQLAlchemy==2.0.27
 alembic==1.13.1
-psycopg2-binary==2.9.9
+psycopg2-binary==2.9.10
 asyncpg==0.29.0
 
 # Authentication & Security
@@ -35,7 +35,7 @@ PyPDF2==3.0.1
 ccxt==4.2.25
 
 # Data Processing & Analysis
-pandas==2.2.0
+pandas==2.2.3
 numpy==1.26.4
 
 # Caching & Task Queue
