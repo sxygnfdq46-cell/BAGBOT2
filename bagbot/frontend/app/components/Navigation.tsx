@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Home, LayoutDashboard, BarChart3, Radio, FileText, Settings, Menu, X, ChevronLeft, ChevronRight, Target, Shield, Brain, MessageSquare, Activity } from 'lucide-react';
 import WalletLogo from '@/components/WalletLogo';
-import { useSidebar } from '@/context/SidebarContext';
+import { useSidebar } from '@/components/sidebar/SidebarContext';
 
 interface NavigationItem {
   name: string;

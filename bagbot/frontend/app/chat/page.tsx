@@ -1,5 +1,8 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Home, MessageSquare, Send, Bot, User, Sparkles } from 'lucide-react';

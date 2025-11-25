@@ -1,5 +1,8 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CheckCircle, AlertTriangle, XCircle, Info, TrendingUp, TrendingDown, Activity, Settings, Zap, RefreshCw, Home, LayoutDashboard, BarChart3, Radio, FileText, Search, Download, Filter, Wifi, WifiOff } from 'lucide-react';

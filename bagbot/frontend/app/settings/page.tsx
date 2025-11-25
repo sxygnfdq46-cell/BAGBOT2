@@ -1,5 +1,8 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Sun, Moon, Key, Shield, Zap, Bell, DollarSign, TrendingUp, Save, CheckCircle, Home, LayoutDashboard, BarChart3, Radio, FileText, Settings, CreditCard, Smartphone, Wallet, Lock, Users, Download, Gift, Info, Copy, AlertTriangle, RefreshCw } from 'lucide-react';

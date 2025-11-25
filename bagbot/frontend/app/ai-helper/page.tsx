@@ -1,6 +1,7 @@
 'use client';
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 import { useState, useRef, useEffect } from 'react';
 import { NeonCard } from '@/components/neon/NeonCard';

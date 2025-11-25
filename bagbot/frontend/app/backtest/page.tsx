@@ -1,5 +1,8 @@
 'use client';
 
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Play, Home, LayoutDashboard, BarChart3, FileText, TrendingUp, TrendingDown, DollarSign, Target, CheckCircle, XCircle, RefreshCw, Download, Upload, Info } from 'lucide-react';
