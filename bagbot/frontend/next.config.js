@@ -1,12 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
-  // Ensure server listens on all interfaces for Render
-  experimental: {
-    serverActions: {
-      allowedOrigins: ['*.onrender.com'],
-    },
-  },
-}
+  output: 'export', // DISABLE standalone so Render gets all assets
+  trailingSlash: true,
+  images: {
+    unoptimized: true
+  }
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
