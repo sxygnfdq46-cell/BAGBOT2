@@ -1,221 +1,208 @@
 'use client';
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { Home, MessageSquare, Send, Bot, User, Sparkles } from 'lucide-react';
-import Navigation from '../components/Navigation';
-import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
-import PageContent from '@/components/Layout/PageContent';
-
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
-}
+import { SciFiShell } from '../sci-fi-shell';
+import { HoloCard } from '@/design-system/components/cards/HoloCard';
+import { GlassInput } from '@/design-system/components/inputs/GlassInput';
+import { HoloButton } from '@/design-system/components/buttons/HoloButton';
+import { useTheme } from '../providers';
+import { useState, useEffect } from 'react';
+import PageTransition from '@/components/PageTransition';
+import AnimatedText from '@/components/AnimatedText';
+import AnimatedCard from '@/components/AnimatedCard';
+import { useAPI, useAPIMutation } from '@/lib/hooks/useAPI';
+import { AIAura, ParticleUniverse, HoloRefract } from '@/components/quantum/QuantumEffects';
+import { AIEmotionAura, TemporalDisplacement } from '@/components/ascension/AscensionEffects';
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content: 'Hi! I\'m your AI trading assistant. I can help with strategies, market analysis, troubleshooting, and more. What would you like to know?',
-      timestamp: new Date().toISOString()
-    }
-  ]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+  const [message, setMessage] = useState('');
+  const [localMessages, setLocalMessages] = useState<any[]>([]);
+  const [aiState, setAIState] = useState<'idle' | 'receiving' | 'processing' | 'active'>('idle');
+  const [aiEmotion, setAiEmotion] = useState<'curious' | 'thinking' | 'excited' | 'confused' | 'confident' | 'idle'>('thinking');
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Fetch chat history
+  const { data: chatHistory } = useAPI<any[]>('/api/ai/history?limit=50');
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // Send message mutation
+  const queryAI = useAPIMutation('/api/ai/query', 'POST');
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
-
-    const userMessage: Message = {
-      role: 'user',
-      content: input,
-      timestamp: new Date().toISOString()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setLoading(true);
-
+  const handleSendMessage = async () => {
+    if (!message.trim()) return;
+    
+    setAIState('receiving');
+    const userMessage = { role: 'user', content: message, time: new Date().toLocaleTimeString() };
+    setLocalMessages([...localMessages, userMessage]);
+    setMessage('');
+    
     try {
-      const response = await fetch('http://localhost:8000/api/systems/chat/query', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: input, session_id: 'default' })
-      });
-      
-      const data = await response.json();
-      
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.answer || 'I apologize, but I couldn\'t process that request.',
-        timestamp: new Date().toISOString()
+      setAIState('processing');
+      setAiEmotion('thinking');
+      const response = await queryAI({ message: message.trim() });
+      const assistantMessage = { 
+        role: 'assistant', 
+        content: response.response || 'Response received', 
+        time: new Date().toLocaleTimeString() 
       };
-
-      setMessages(prev => [...prev, assistantMessage]);
+      setAIState('active');
+      setAiEmotion('confident');
+      setLocalMessages((prev) => [...prev, assistantMessage]);
+      setTimeout(() => {
+        setAIState('idle');
+        setAiEmotion('idle');
+      }, 2000);
     } catch (error) {
-      console.error('Failed to send message:', error);
-      
-      const errorMessage: Message = {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date().toISOString()
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setLoading(false);
+      console.error('AI query failed:', error);
+      setAIState('idle');
+      setAiEmotion('confused');
+      setTimeout(() => setAiEmotion('idle'), 3000);
     }
   };
 
-  const quickQuestions = [
-    "What strategy should I use right now?",
-    "What's the current market bias?",
-    "How do I fix API errors?",
-    "Explain order blocks strategy",
-    "What are my risk settings?"
+  const messages = [...(chatHistory ?? []), ...localMessages].slice(-20);
+
+  const suggestions = [
+    '📊 Analyze current portfolio performance',
+    '🎯 Suggest strategy optimizations',
+    '⚠️ Review risk exposure',
+    '📈 Market outlook for next 24h',
   ];
 
-  const handleQuickQuestion = (question: string) => {
-    setInput(question);
-  };
-
   return (
-    <>
-      <LiveTickerTape />
-      <Navigation active="/chat" />
-      <PageContent>
-        <div className="max-w-5xl mx-auto h-[calc(100vh-200px)] flex flex-col">
-          {/* Header */}
-          <nav className="mb-6 flex items-center gap-2 text-sm">
-            <Link href="/" className="text-[#FFFBE7]/60 hover:text-[#F9D949] transition-colors flex items-center gap-1">
-              <Home className="w-4 h-4" />
-              Home
-            </Link>
-            <span className="text-[#FFFBE7]/30">/</span>
-            <span className="text-[#F9D949] font-semibold">AI Chat Helper</span>
-          </nav>
+    <SciFiShell>
+      <ParticleUniverse enabled={true} />
+      
+      <PageTransition direction="up">
+        {/* LEVEL 5: AI Emotion Aura */}
+        <AIEmotionAura emotion={aiEmotion} intensity={0.8}>
+        {/* LEVEL 5: Temporal Displacement */}
+        <TemporalDisplacement active={aiState === 'processing'}>
+        <AIAura state={aiState}>
+      <div className="space-y-6 h-full flex flex-col">
+        {/* Page Header */}
+        <div>
+          <AnimatedText variant="breathe-cyan">
+          <h1 
+            className="text-4xl font-bold neon-text mb-2"
+            style={{ color: theme.colors.neonCyan }}
+          >
+            AI Assistant
+          </h1>
+          </AnimatedText>
+          <p style={{ color: theme.text.tertiary }}>
+            Chat with your intelligent trading copilot
+          </p>
+        </div>
 
-          {/* Title */}
-          <div className="mb-6">
-            <h1 className="text-3xl md:text-4xl font-black text-[#FFFBE7] mb-2 flex items-center gap-3">
-              <Sparkles className="w-8 h-8 text-[#F9D949]" />
-              AI Trading Assistant
-            </h1>
-            <p className="text-sm text-[#FFFBE7]/70">
-              Ask me anything about strategies, market conditions, or troubleshooting
-            </p>
-          </div>
-
-          {/* Chat Container */}
-          <div className="flex-1 flex flex-col rounded-2xl bg-gradient-to-br from-[#1a0a0f] to-black border-2 border-[#7C2F39]/30 overflow-hidden">
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {messages.map((message, idx) => (
+        {/* Chat Container */}
+        <AnimatedCard variant="pulse-cyan" delay={100}>
+        <HoloCard glowColor="cyan" className="flex-1 flex flex-col">
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto space-y-4 mb-6">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
                 <div
-                  key={idx}
-                  className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className="max-w-[70%] p-4 rounded-lg"
+                  style={{
+                    background: msg.role === 'user' 
+                      ? 'rgba(0, 246, 255, 0.15)' 
+                      : 'rgba(255, 255, 255, 0.05)',
+                    border: `1px solid ${msg.role === 'user' ? theme.border.active : theme.border.subtle}`,
+                    boxShadow: msg.role === 'user' ? theme.shadows.glow.soft : 'none',
+                  }}
                 >
-                  {message.role === 'assistant' && (
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F9D949]/20 border border-[#F9D949]/50 flex items-center justify-center">
-                      <Bot className="w-5 h-5 text-[#F9D949]" />
-                    </div>
-                  )}
-                  
-                  <div
-                    className={`max-w-[70%] p-4 rounded-2xl ${
-                      message.role === 'user'
-                        ? 'bg-[#7C2F39]/20 border border-[#7C2F39]/50 text-[#FFFBE7]'
-                        : 'bg-black/50 border border-[#F9D949]/30 text-[#FFFBE7]'
-                    }`}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                    <span className="text-xs text-[#FFFBE7]/40 mt-2 block">
-                      {new Date(message.timestamp).toLocaleTimeString()}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-bold" style={{ color: theme.colors.neonCyan }}>
+                      {msg.role === 'user' ? 'You' : 'AI Assistant'}
+                    </span>
+                    <span className="text-xs" style={{ color: theme.text.tertiary }}>
+                      {msg.time}
                     </span>
                   </div>
+                  <p style={{ color: theme.text.primary }}>
+                    {msg.content}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
 
-                  {message.role === 'user' && (
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#7C2F39]/20 border border-[#7C2F39]/50 flex items-center justify-center">
-                      <User className="w-5 h-5 text-[#F9D949]" />
-                    </div>
-                  )}
-                </div>
-              ))}
-              
-              {loading && (
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#F9D949]/20 border border-[#F9D949]/50 flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-[#F9D949]" />
-                  </div>
-                  <div className="max-w-[70%] p-4 rounded-2xl bg-black/50 border border-[#F9D949]/30">
-                    <div className="flex gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#F9D949] animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 rounded-full bg-[#F9D949] animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 rounded-full bg-[#F9D949] animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <div ref={messagesEndRef} />
+          {/* Suggestions */}
+          <div className="mb-4">
+            <div className="text-sm mb-2" style={{ color: theme.text.tertiary }}>
+              Quick Actions:
             </div>
-
-            {/* Quick Questions */}
-            {messages.length <= 1 && (
-              <div className="px-6 pb-4">
-                <p className="text-xs text-[#FFFBE7]/60 mb-2">Quick questions:</p>
-                <div className="flex flex-wrap gap-2">
-                  {quickQuestions.map((question, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleQuickQuestion(question)}
-                      className="px-3 py-1.5 rounded-lg bg-[#7C2F39]/20 border border-[#7C2F39]/50 text-xs text-[#F9D949] hover:bg-[#7C2F39]/30 transition-all"
-                    >
-                      {question}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Input */}
-            <div className="p-4 border-t-2 border-[#7C2F39]/30">
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                  placeholder="Ask me anything..."
-                  disabled={loading}
-                  className="flex-1 px-4 py-3 rounded-xl bg-black/50 border-2 border-[#7C2F39]/30 text-[#FFFBE7] placeholder-[#FFFBE7]/40 focus:border-[#F9D949]/50 focus:outline-none transition-all"
-                />
+            <div className="grid grid-cols-2 gap-2">
+              {suggestions.map((suggestion, i) => (
                 <button
-                  onClick={sendMessage}
-                  disabled={!input.trim() || loading}
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#7C2F39] to-[#F9D949] text-black font-bold hover:shadow-lg hover:shadow-[#F9D949]/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  key={i}
+                  className="p-3 rounded text-left text-sm transition-smooth hover-lift hover-glow"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: `1px solid ${theme.border.subtle}`,
+                    color: theme.text.secondary,
+                  }}
                 >
-                  <Send className="w-4 h-4" />
-                  Send
+                  {suggestion}
                 </button>
-              </div>
+              ))}
             </div>
           </div>
+
+          {/* Input Area */}
+          <div className="flex gap-3">
+            <GlassInput
+              placeholder="Ask me anything about your trading..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="flex-1"
+            />
+            <HoloButton variant="primary" size="md" className="hover-lift hover-glow transition-smooth">
+              Send →
+            </HoloButton>
+          </div>
+        </HoloCard>
+        </AnimatedCard>
+
+        {/* AI Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Questions Today', value: '47', icon: '💬' },
+            { label: 'Accuracy', value: '94.2%', icon: '🎯' },
+            { label: 'Avg Response', value: '1.2s', icon: '⚡' },
+            { label: 'Insights Given', value: '28', icon: '💡' },
+          ].map((stat, idx) => (
+            <div
+              key={stat.label}
+              className="p-4 rounded glass-panel holo-border animate-fade-in-up"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: `1px solid ${theme.border.default}`,
+                animationDelay: `${0.1 + idx * 0.1}s`,
+              }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-2xl">{stat.icon}</span>
+                <span className="text-sm" style={{ color: theme.text.tertiary }}>
+                  {stat.label}
+                </span>
+              </div>
+              <div 
+                className="text-2xl font-bold"
+                style={{ color: theme.colors.neonCyan }}
+              >
+                {stat.value}
+              </div>
+            </div>
+          ))}
         </div>
-      </PageContent>
-    </>
+      </div>
+      </AIAura>
+      </TemporalDisplacement>
+      </AIEmotionAura>
+      </PageTransition>
+    </SciFiShell>
   );
 }

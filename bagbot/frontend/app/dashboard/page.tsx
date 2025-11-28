@@ -1,765 +1,609 @@
 'use client';
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { TrendingUp, DollarSign, Target, Activity, Server, Zap, Home, BarChart3, Radio, FileText, Settings, RefreshCw, Download, Filter, Play, Pause, ChevronDown, Plus, Minus, Wifi, WifiOff, ArrowUpCircle, ArrowDownCircle, Copy } from 'lucide-react';
-import Navigation from '../components/Navigation';
-import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
-import PageContent from '@/components/Layout/PageContent';
-import api from '@/utils/apiService';
-import { useWorkerStatus, useStrategyConfig, useLogs } from '@/utils/hooks';
-import { getUserFriendlyError } from '@/utils/api';
+import { SciFiShell } from '../sci-fi-shell';
+import { HoloCard } from '@/design-system/components/cards/HoloCard';
+import { HUDWidget } from '@/design-system/components/hud/HUDWidget';
+import { NeonTabs } from '@/design-system/components/tabs/NeonTabs';
+import { useTheme } from '../providers';
+import { useState, useEffect, useRef } from 'react';
+import PageTransition from '@/components/PageTransition';
+import AnimatedText from '@/components/AnimatedText';
+import AnimatedCard from '@/components/AnimatedCard';
+import DataSpark from '@/components/DataSpark';
+import { useAPI, useAPIPoll } from '@/lib/hooks/useAPI';
+import { useWebSocket } from '@/lib/hooks/useWebSocket';
+import { dashboardService, marketService } from '@/services';
+import { getMarketSimulationEngine } from '../lib/simulation/MarketSimulationEngine';
+import type { Candle, MarketSentiment } from '../lib/simulation/MarketSimulationEngine';
+import { 
+  ParticleUniverse, 
+  CameraDrift, 
+  QuantumReactive,
+  HoloRefract,
+  QuantumField,
+  ParallaxDepth,
+  HyperspaceThread
+} from '@/components/quantum/QuantumEffects';
+import { 
+  NeuralSynapse,
+  HaloFlux,
+  QuantumRipple,
+  AuroraStream,
+  AdaptiveHUD
+} from '@/components/ascension/AscensionEffects';
+import { useBehavior } from '../engine/bic/BehaviorProvider';
+import { useCognitiveFusion } from '../engine/cognitive/CognitiveFusionProvider';
+import { useEntity } from '../engine/entity/EntityProvider';
+import { useMemoryImprint } from '../engine/entity/MemoryImprintProvider';
 
 export default function DashboardPage() {
-  // Use custom hooks for real-time data
-  const { status: workerStatus, loading: workerLoading, error: workerError, refetch: refetchWorker } = useWorkerStatus(5000);
-  const { config: strategyConfig, loading: strategyLoading } = useStrategyConfig();
-  const { logs: recentLogs, loading: logsLoading } = useLogs({ limit: 10 }, 10000);
+  const { theme } = useTheme();
   
-  // UI state
-  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const [autoRefresh, setAutoRefresh] = useState(true);
-  const [showFilters, setShowFilters] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected'>('disconnected');
-  const [showExportModal, setShowExportModal] = useState(false);
-  const [showDepositModal, setShowDepositModal] = useState(false);
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [isTogglingWorker, setIsTogglingWorker] = useState(false);
-  const [stakeAmount, setStakeAmount] = useState('1000');
-  const [selectedStrategy, setSelectedStrategy] = useState('conservative');
+  // LEVEL 6.1 BIC — Behavioral Intelligence Core
+  const { behavior } = useBehavior();
   
-  // Strategy options
-  const strategies = [
-    { id: 'conservative', name: 'Conservative', desc: 'Low risk, steady gains' },
-    { id: 'balanced', name: 'Balanced', desc: 'Medium risk, balanced returns' },
-    { id: 'aggressive', name: 'Aggressive', desc: 'High risk, maximum returns' },
-    { id: 'scalping', name: 'Scalping', desc: 'Quick trades, frequent signals' },
-  ];
+  // LEVEL 6.2 COGNITIVE FUSION — Predictive UI Reactions
+  const { cognitive } = useCognitiveFusion();
   
-  // API health check
-  const [apiHealth, setApiHealth] = useState<any>(null);
-  const [isLoadingHealth, setIsLoadingHealth] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
+  // LEVEL 7 + 7.2 ENTITY MODE — Symbiotic Personality with Expressions
+  const { entity, expression } = useEntity();
   
-  // Live chart data
-  const [chartData, setChartData] = useState<number[]>(
-    Array.from({ length: 20 }, () => Math.random() * 100 + 50)
-  );
+  // LEVEL 7.3 MEMORY IMPRINT — Long-term personality memory
+  const { memory, soulLink, personalityMap, relationshipStatus, bondQuality, driftProfile } = useMemoryImprint();
   
-  // Live updates from logs
-  const [liveUpdates, setLiveUpdates] = useState<Array<{
-    type: 'trade' | 'signal' | 'alert' | 'info';
-    message: string;
-    time: string;
-    id: number;
-  }>>([]);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [dataUpdated, setDataUpdated] = useState(false);
+  const [prevMetrics, setPrevMetrics] = useState<any>(null);
+  const [marketPulse, setMarketPulse] = useState(0);
+  const [haloIntensity, setHaloIntensity] = useState<'idle' | 'active' | 'intense'>('idle');
+  const [auroraEvent, setAuroraEvent] = useState<number>(0);
+  const metricsRef = useRef<HTMLDivElement>(null);
+  const tradesRef = useRef<HTMLDivElement>(null);
+  const [showThread, setShowThread] = useState(false);
+  const [simulatedCandles, setSimulatedCandles] = useState<Candle[]>([]);
+  const [simulatedSentiment, setSimulatedSentiment] = useState<MarketSentiment | null>(null);
 
-  // Check API health
-  const checkApiHealth = async () => {
-    setIsLoadingHealth(true);
-    setApiError(null);
-    
-    try {
-      const healthResponse = await api.apiHealth();
-      setApiHealth(healthResponse.data);
-      setConnectionStatus('connected');
-      setLastUpdate(new Date());
-    } catch (error) {
-      console.error('Failed to fetch API health:', error);
-      setApiError(getUserFriendlyError(error));
-      setConnectionStatus('disconnected');
-    } finally {
-      setIsLoadingHealth(false);
-    }
-  };
-
-  // Initial health check
+  // Initialize Market Simulation Engine
   useEffect(() => {
-    checkApiHealth();
+    const engine = getMarketSimulationEngine({ basePrice: 50000, trend: 'RANGE', volatility: 0.02 });
+    
+    // Start engine
+    engine.start();
+    
+    // Subscribe to 1m, 5m, 15m candle updates
+    const unsubCandles = engine.subscribe('candle', ({ candle, timeframe }) => {
+      if (timeframe === '1m') {
+        setSimulatedCandles(prev => [...prev.slice(-99), candle]);
+      }
+    });
+    
+    // Subscribe to sentiment updates
+    const unsubSentiment = engine.subscribe('sentiment', (sentiment: MarketSentiment) => {
+      setSimulatedSentiment(sentiment);
+    });
+    
+    return () => {
+      unsubCandles();
+      unsubSentiment();
+      engine.stop();
+    };
   }, []);
 
-  // Auto-refresh health check
-  useEffect(() => {
-    if (autoRefresh) {
-      const interval = setInterval(() => {
-        checkApiHealth();
-      }, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [autoRefresh]);
+  // Fetch dashboard metrics
+  const { data: metrics, error: metricsError, loading: metricsLoading } = useAPI<any>(
+    '/api/dashboard/metrics'
+  );
 
-  // Update live updates from logs
-  useEffect(() => {
-    if (recentLogs && recentLogs.length > 0) {
-      const updates = recentLogs.slice(0, 10).map((log, idx) => ({
-        type: log.level === 'ERROR' ? 'alert' : 
-              log.level === 'WARNING' ? 'alert' : 
-              log.message.includes('signal') ? 'signal' :
-              log.message.includes('trade') || log.message.includes('TRADE') ? 'trade' : 'info',
-        message: log.message,
-        time: new Date(log.timestamp).toLocaleTimeString(),
-        id: Date.now() + idx
-      } as {type: 'trade' | 'signal' | 'alert' | 'info'; message: string; time: string; id: number}));
-      setLiveUpdates(updates);
-    }
-  }, [recentLogs]);
-  
-  // Simulate live chart updates when worker is running
-  useEffect(() => {
-    if (workerStatus === 'running') {
-      const interval = setInterval(() => {
-        setChartData(prev => {
-          const newData = [...prev.slice(1), Math.random() * 100 + 50];
-          return newData;
-        });
-      }, 2000);
-      return () => clearInterval(interval);
-    }
-  }, [workerStatus]);
+  // Fetch recent trades with polling
+  const { data: recentTrades, loading: tradesLoading } = useAPIPoll<any[]>(
+    '/api/trading/recent?limit=10',
+    3000 // Poll every 3 seconds
+  );
 
-  const handleManualRefresh = () => {
-    checkApiHealth();
-    refetchWorker();
-  };
-  
-  // Worker toggle with real API calls
-  const handleBotToggle = async () => {
-    if (isTogglingWorker) return;
-    
-    setIsTogglingWorker(true);
-    const previousState = workerStatus;
-    
-    try {
-      if (workerStatus !== 'running') {
-        const response = await api.startWorker();
-        
-        setLiveUpdates(prev => [{
-          type: 'alert',
-          message: `✅ Worker started: ${response.data.status}`,
-          time: 'Just now',
-          id: Date.now()
-        }, ...prev.slice(0, 9)]);
-      } else {
-        const response = await api.stopWorker();
-        
-        setLiveUpdates(prev => [{
-          type: 'alert',
-          message: `⏹ Worker stopped: ${response.data.status}`,
-          time: 'Just now',
-          id: Date.now()
-        }, ...prev.slice(0, 9)]);
+  // Detect data updates for quantum effects
+  useEffect(() => {
+    if (metrics && prevMetrics) {
+      if (JSON.stringify(metrics) !== JSON.stringify(prevMetrics)) {
+        setDataUpdated(true);
+        setShowThread(true);
+        setTimeout(() => {
+          setDataUpdated(false);
+          setShowThread(false);
+        }, 500);
       }
-      
-      // Refresh worker status
-      setTimeout(() => {
-        refetchWorker();
-      }, 1000);
-      
-    } catch (error) {
-      const errorMsg = getUserFriendlyError(error);
-      console.error('Failed to toggle worker:', error);
-      
-      setLiveUpdates(prev => [{
-        type: 'alert',
-        message: `❌ Error: ${errorMsg}`,
-        time: 'Just now',
-        id: Date.now()
-      }, ...prev.slice(0, 9)]);
-    } finally {
-      setIsTogglingWorker(false);
     }
+    if (metrics) setPrevMetrics(metrics);
+  }, [metrics, prevMetrics]);
+
+  // Fetch strategy statuses
+  const { data: strategies, loading: strategiesLoading } = useAPI<any[]>(
+    '/api/strategies/status'
+  );
+
+  // Fetch open positions
+  const { data: positions, loading: positionsLoading } = useAPI<any[]>(
+    '/api/trading/positions'
+  );
+
+  // WebSocket connection for real-time price updates
+  const { data: livePrice, isConnected: priceConnected } = useWebSocket<any>({
+    channel: 'prices',
+    filters: { symbol: 'BTCUSDT' },
+    enabled: true,
+    autoConnect: true,
+  });
+
+  // Format currency
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
   };
-  // Stats with real API data and loading states
-  const stats = [
-    { 
-      label: 'Backend Status', 
-      value: isLoadingHealth 
-        ? '⏳ Loading...' 
-        : apiError 
-          ? '❌ Error' 
-          : apiHealth?.status === 'api healthy' 
-            ? '✅ Healthy' 
-            : '❌ Down', 
-      change: isLoadingHealth ? 'Checking...' : apiError || (apiHealth ? 'Connected' : 'Disconnected'),
-      icon: Server,
-      color: apiHealth?.status === 'api healthy' ? 'from-[#4ADE80] to-[#22C55E]' : 'from-[#7C2F39] to-[#C75B7A]',
-      bgColor: apiHealth?.status === 'api healthy' ? 'from-[#4ADE80]/10 to-black' : 'from-[#7C2F39]/10 to-black'
-    },
-    { 
-      label: 'Worker Status', 
-      value: workerLoading 
-        ? '⏳ Loading...' 
-        : workerError 
-          ? '❌ Error' 
-          : workerStatus === 'running' 
-            ? '🟢 Running' 
-            : workerStatus === 'stopped' 
-              ? '🔴 Stopped' 
-              : '⚪ Unknown', 
-      change: workerLoading ? 'Checking...' : workerError || (workerStatus === 'running' ? 'Active' : 'Idle'),
-      icon: Zap,
-      color: workerStatus === 'running' ? 'from-[#4ADE80] to-[#22C55E]' : 'from-[#F9D949] to-[#FDE68A]',
-      bgColor: workerStatus === 'running' ? 'from-[#4ADE80]/10 to-black' : 'from-[#F9D949]/10 to-black'
-    },
-    { 
-      label: 'Connection', 
-      value: connectionStatus === 'connected' ? '🟢 Connected' : '🔴 Offline', 
-      change: connectionStatus === 'connected' ? 'Real-time updates' : 'Reconnecting...',
-      icon: connectionStatus === 'connected' ? Wifi : WifiOff,
-      color: connectionStatus === 'connected' ? 'from-[#60A5FA] to-[#3B82F6]' : 'from-[#7C2F39] to-[#C75B7A]',
-      bgColor: connectionStatus === 'connected' ? 'from-[#60A5FA]/10 to-black' : 'from-[#7C2F39]/10 to-black'
-    },
-    { 
-      label: 'Active Strategy', 
-      value: strategyLoading ? '⏳ Loading...' : (strategyConfig?.active_strategy || 'None'), 
-      change: strategyConfig?.parameters ? `${Object.keys(strategyConfig.parameters).length} parameters` : 'Not configured',
-      icon: Target,
-      color: 'from-[#F9D949] to-[#FDE68A]',
-      bgColor: 'from-[#F9D949]/10 to-black'
+
+  // Format percentage
+  const formatPercent = (value: number) => {
+    return `${value >= 0 ? '+' : ''}${value.toFixed(1)}%`;
+  };
+
+  // Format timestamp
+  const formatTime = (timestamp: string) => {
+    return new Date(timestamp).toLocaleTimeString('en-US', { 
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  // Extract metrics with fallbacks
+  const portfolioValue = metrics?.total_equity ?? 0;
+  const dailyPnL = metrics?.daily_pnl ?? 0;
+  const activePositionsCount = positions?.length ?? 0;
+  const winRate = metrics?.win_rate ?? 0;
+  const dailyVolume = metrics?.daily_volume ?? 0;
+
+  // Level 5: Calculate market pulse (0-100 based on activity)
+  useEffect(() => {
+    const volume = dailyVolume / 1000000; // Normalize to millions
+    const pnlImpact = Math.abs(dailyPnL) / 10000; // Normalize
+    const positionActivity = activePositionsCount * 5;
+    
+    const pulse = Math.min(100, volume + pnlImpact + positionActivity);
+    setMarketPulse(pulse);
+    
+    // Set HaloFlux intensity
+    if (pulse > 70) setHaloIntensity('intense');
+    else if (pulse > 30) setHaloIntensity('active');
+    else setHaloIntensity('idle');
+  }, [dailyVolume, dailyPnL, activePositionsCount]);
+
+  // Level 5: Trigger aurora on new trades
+  useEffect(() => {
+    if (recentTrades && recentTrades.length > 0) {
+      setAuroraEvent(Date.now());
     }
-  ];
+  }, [recentTrades]);
+
+  // Level 7.2: Build expression classes
+  const getShadowState = () => {
+    if (!expression) return '';
+    const shadow = expression.shadow;
+    if (shadow.flickerIntensity > 50) return 'flicker';
+    if (shadow.diffusionLevel > 50) return 'diffuse';
+    if (shadow.sharpness > 50) return 'sharpen';
+    if (shadow.tightness > 50) return 'tighten';
+    if (shadow.expansionFactor > 1.2) return 'expand';
+    return '';
+  };
+
+  const getWarmthState = () => {
+    if (!expression) return '';
+    const warmth = expression.warmth;
+    if (warmth.feedbackIntensity > 70) return 'critical';
+    if (warmth.hueShift > 15) return 'warm';
+    if (warmth.hueShift < -15) return 'cool';
+    if (warmth.brightnessModulation > 1.1) return 'focus';
+    return 'idle';
+  };
+
+  const expressionClasses = expression ? [
+    `micro-glow-${expression.microGlow.type}`,
+    `mood-${expression.mood.currentTone}`,
+    `mood-strength-${expression.mood.toneStrength > 70 ? 'high' : expression.mood.toneStrength > 40 ? 'medium' : 'low'}`,
+    getShadowState() && `entity-shadow-${getShadowState()}`,
+    expression.warmth.pulseAmplitude > 50 && 'warmth-pulse',
+    `warmth-${getWarmthState()}`
+  ].filter(Boolean).join(' ') : '';
 
   return (
-    <div>
-      <LiveTickerTape />
-      <Navigation active="/dashboard" />
-      <PageContent>
-        <div className="max-w-7xl mx-auto">
-        {/* Navigation */}
-        <nav className="mb-6 md:mb-8 flex items-center gap-2 text-sm">
-          <Link href="/" className="text-[#FFFBE7]/60 hover:text-[#F9D949] transition-colors flex items-center gap-1">
-            <Home className="w-4 h-4" />
-            <span className="hidden sm:inline">Home</span>
-          </Link>
-          <span className="text-[#FFFBE7]/30">/</span>
-          <span className="text-[#F9D949] font-semibold">Dashboard</span>
-        </nav>
+    <SciFiShell>
+      {/* LEVEL 5: HaloFlux Layer */}
+      <HaloFlux intensity={haloIntensity} />
+      
+      {/* LEVEL 5: Aurora on trades */}
+      {auroraEvent > 0 && <AuroraStream event="trade" position="top" key={auroraEvent} />}
+      
+      {/* LEVEL 4: Particle Universe */}
+      <ParticleUniverse enabled={true} />
+      
+      {/* LEVEL 4: Hyperspace Thread (connects metrics to trades) */}
+      {showThread && metricsRef.current && tradesRef.current && (
+        <HyperspaceThread 
+          fromElement={metricsRef.current} 
+          toElement={tradesRef.current}
+          duration={500}
+        />
+      )}
 
-        {/* Quick Navigation */}
-        <div className="mb-6 md:mb-8 flex flex-wrap gap-2 md:gap-3">
-          <Link href="/dashboard" className="px-4 py-2 rounded-lg bg-[#7C2F39] border border-[#F9D949] text-[#FFFBE7] font-semibold text-sm transition-all">
-            Dashboard
-          </Link>
-          <Link href="/charts" className="px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7]/60 hover:border-[#F9D949]/50 hover:text-[#F9D949] font-semibold text-sm transition-all flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            Charts
-          </Link>
-          <Link href="/signals" className="px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7]/60 hover:border-[#F9D949]/50 hover:text-[#F9D949] font-semibold text-sm transition-all flex items-center gap-2">
-            <Radio className="w-4 h-4" />
-            Signals
-          </Link>
-          <Link href="/logs" className="px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7]/60 hover:border-[#F9D949]/50 hover:text-[#F9D949] font-semibold text-sm transition-all flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Logs
-          </Link>
-          <Link href="/settings" className="px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7]/60 hover:border-[#F9D949]/50 hover:text-[#F9D949] font-semibold text-sm transition-all flex items-center gap-2">
-            <Settings className="w-4 h-4" />
-            Settings
-          </Link>
-        </div>
-
-        {/* Header with Controls */}
-        <div className="mb-8 md:mb-12">
-          <div className="flex flex-col gap-4 mb-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-2 md:mb-3">
-                  <span className="bg-gradient-to-r from-[#FFFBE7] to-[#F9D949] bg-clip-text text-transparent">
-                    Trading Dashboard
-                  </span>
-                </h1>
-                <p className="text-[#FFFBE7]/60 text-base md:text-lg">Real-time trading operations & analytics</p>
+      {/* LEVEL 7.2: Entity Expression Status */}
+      {entity && expression && (
+        <div className={`fixed top-4 right-4 z-50 p-3 rounded-lg backdrop-blur-sm border transition-all duration-300 ${expressionClasses}`}
+          style={{
+            background: 'rgba(0, 0, 0, 0.6)',
+            borderColor: entity.aura.color,
+            boxShadow: `0 0 20px ${entity.aura.color}40`
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-2 h-2 rounded-full ${expression.microGlow.type}`}
+              style={{ 
+                background: entity.aura.color,
+                boxShadow: `0 0 10px ${entity.aura.color}`
+              }}
+            />
+            <div className="text-xs">
+              <div className="font-mono text-cyan-400">
+                {entity.presence.isResponding ? 'RESPONDING' : entity.presence.isWatching ? 'WATCHING' : entity.presence.isAwake ? 'AWAKE' : 'IDLE'}
               </div>
-              {/* Connection Status */}
-              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30">
-                {connectionStatus === 'connected' ? (
-                  <>
-                    <Wifi className="w-4 h-4 text-[#4ADE80] animate-pulse" />
-                    <span className="text-xs text-[#4ADE80] hidden sm:inline">Live</span>
-                  </>
-                ) : (
-                  <>
-                    <WifiOff className="w-4 h-4 text-[#EF4444]" />
-                    <span className="text-xs text-[#EF4444] hidden sm:inline">Offline</span>
-                  </>
-                )}
-              </div>
-            </div>
-            {/* Quick Actions */}
-            <div className="flex flex-wrap items-center gap-2">
-              <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#4ADE80] to-[#22C55E] text-black font-semibold text-sm hover:scale-105 transition-all flex items-center gap-2 shadow-lg">
-                <Plus className="w-4 h-4" />
-                Deposit
-              </button>
-              <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#7C2F39] to-[#991B1B] text-[#FFFBE7] font-semibold text-sm hover:scale-105 transition-all flex items-center gap-2 shadow-lg">
-                <Minus className="w-4 h-4" />
-                Withdraw
-              </button>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-              <button
-                onClick={handleManualRefresh}
-                className="px-3 md:px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7] hover:border-[#F9D949]/50 transition-all flex items-center gap-2 text-sm"
-              >
-                <RefreshCw className="w-4 h-4" />
-                <span className="hidden sm:inline">Refresh</span>
-              </button>
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="px-3 md:px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7] hover:border-[#F9D949]/50 transition-all flex items-center gap-2 text-sm"
-              >
-                <Filter className="w-4 h-4" />
-                <span className="hidden sm:inline">Filters</span>
-              </button>
-              <button className="px-3 md:px-4 py-2 rounded-lg bg-gradient-to-r from-[#7C2F39] to-[#991B1B] text-[#FFFBE7] hover:from-[#991B1B] hover:to-[#7C2F39] transition-all flex items-center gap-2 text-sm">
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Export</span>
-              </button>
+              <div className="text-gray-500">{expression.mood.currentTone}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-sm">
+        </div>
+      )}
+
+      {/* LEVEL 7.3: Soul-Link Status */}
+      {soulLink && personalityMap && (
+        <div className="fixed top-20 right-4 z-50 p-3 rounded-lg backdrop-blur-sm border border-purple-500/30 transition-all duration-300"
+          style={{
+            background: 'rgba(0, 0, 0, 0.6)',
+            boxShadow: '0 0 15px rgba(168, 85, 247, 0.2)'
+          }}
+        >
+          <div className="text-xs space-y-2">
             <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${autoRefresh ? 'bg-[#4ADE80] animate-pulse' : 'bg-[#7C2F39]'}`} />
-              <span className="text-[#FFFBE7]/60">Last updated: {lastUpdate.toLocaleTimeString()}</span>
+              <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+              <div className="font-mono text-purple-400">{relationshipStatus.toUpperCase()}</div>
             </div>
-            <button
-              onClick={() => setAutoRefresh(!autoRefresh)}
-              className="text-[#F9D949] hover:text-[#FDE68A] transition-colors"
-            >
-              {autoRefresh ? 'Disable' : 'Enable'} auto-refresh
-            </button>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={index}
-                className={`relative p-6 rounded-2xl bg-gradient-to-br ${stat.bgColor} border border-[#7C2F39]/30 hover:border-[#F9D949]/50 transition-all group overflow-hidden glass-5d depth-5d-2 perspective-5d`}
-              >
-                {/* Holographic background layer */}
-                <div className="absolute inset-0 holographic-5d pointer-events-none" />
-                
-                {/* Animated shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#F9D949]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                
-                <div className={`absolute top-0 left-0 w-full h-1 rounded-t-2xl bg-gradient-to-r ${stat.color} animate-pulse metallic-5d`} />
-                
-                <div className="flex items-start justify-between mb-4 relative z-10">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg emboss-5d depth-5d-3`}>
-                    <Icon className="w-6 h-6 text-black drop-shadow-lg" />
-                  </div>
-                </div>
-
-                <div className="mb-2 relative z-10">
-                  <div className="text-sm text-[#FFFBE7]/60 font-semibold tracking-wide uppercase mb-1">
-                    {stat.label}
-                  </div>
-                  <div className="text-4xl font-black animate-fade-in">
-                    <span className={`bg-gradient-to-r ${stat.color} bg-clip-text text-transparent text-5d`}>
-                      {stat.value}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-sm text-[#FFFBE7]/50 flex items-center gap-1 relative z-10">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#4ADE80] animate-pulse" />
-                  {stat.change}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Bot Control Panel */}
-        <div className="mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#FFFBE7] mb-4 md:mb-6 text-5d">Trading Bot Control</h2>
-          
-          <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30 glass-5d depth-5d-3 perspective-5d relative overflow-hidden">
-            {/* Holographic background */}
-            <div className="absolute inset-0 holographic-5d opacity-10 pointer-events-none" />
-            
-            <div className="relative z-10 grid md:grid-cols-3 gap-6">
-              {/* Bot Status & Control */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-[#FFFBE7] mb-3">Bot Status</label>
-                  <button
-                    onClick={handleBotToggle}
-                    disabled={isTogglingWorker}
-                    className={`w-full px-6 py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 depth-5d-2 emboss-5d ${
-                      isTogglingWorker
-                        ? 'bg-gradient-to-r from-[#6B7280] to-[#4B5563] text-white cursor-wait opacity-75'
-                        : workerStatus === 'running'
-                          ? 'bg-gradient-to-r from-[#EF4444] to-[#DC2626] text-white hover:from-[#DC2626] hover:to-[#B91C1C] shadow-[0_0_30px_rgba(239,68,68,0.5)]'
-                          : 'bg-gradient-to-r from-[#4ADE80] to-[#22C55E] text-black hover:from-[#22C55E] hover:to-[#16A34A] shadow-[0_0_30px_rgba(74,222,128,0.3)]'
-                    }`}
-                  >
-                    {isTogglingWorker ? (
-                      <>
-                        <RefreshCw className="w-5 h-5 animate-spin" />
-                        Processing...
-                      </>
-                    ) : workerStatus === 'running' ? (
-                      <>
-                        <Pause className="w-5 h-5" />
-                        Stop Bot
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-5 h-5" />
-                        Start Bot
-                      </>
-                    )}
-                  </button>
-                </div>
-                
-                {workerStatus === 'running' && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-[#4ADE80]/10 border border-[#4ADE80]/30">
-                    <span className="relative flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4ADE80] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-[#4ADE80]"></span>
-                    </span>
-                    <span className="text-[#4ADE80] text-sm font-semibold">Bot is running...</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Stake Amount */}
-              <div>
-                <label className="block text-sm font-semibold text-[#FFFBE7] mb-3">Stake Amount (USD)</label>
-                <input
-                  type="number"
-                  value={stakeAmount}
-                  onChange={(e) => setStakeAmount(e.target.value)}
-                  disabled={workerStatus === 'running'}
-                  className={`w-full px-4 py-3 rounded-xl bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7] text-lg font-semibold focus:border-[#F9D949] focus:outline-none transition-all ${
-                    workerStatus === 'running' ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                  placeholder="1000"
-                  min="100"
-                  step="100"
-                />
-                <p className="text-xs text-[#FFFBE7]/50 mt-2">Minimum: $100</p>
-              </div>
-              
-              {/* Strategy Selection */}
-              <div>
-                <label className="block text-sm font-semibold text-[#FFFBE7] mb-3">Trading Strategy</label>
-                <div className="relative">
-                  <select
-                    value={selectedStrategy}
-                    onChange={(e) => setSelectedStrategy(e.target.value)}
-                    disabled={workerStatus === 'running'}
-                    className={`w-full px-4 py-3 rounded-xl bg-[#1a0a0f] border-2 border-[#7C2F39] text-[#F9D949] font-bold text-lg focus:border-[#F9D949] focus:outline-none transition-all cursor-pointer shadow-lg hover:shadow-[#F9D949]/20 ${
-                      workerStatus === 'running' ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                    style={{
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23F9D949' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'right 1rem center',
-                      paddingRight: '3rem'
-                    }}
-                  >
-                    {strategies.map(strategy => (
-                      <option key={strategy.id} value={strategy.id} className="bg-[#1a0a0f] text-[#F9D949] font-semibold py-2">
-                        {strategy.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <p className="text-xs text-[#FFFBE7]/70 mt-2 font-medium">
-                  {strategies.find(s => s.id === selectedStrategy)?.desc}
-                </p>
+            <div className="text-gray-500 space-y-1">
+              <div>Bond: {soulLink.bondStrength.toFixed(0)}%</div>
+              <div className="flex gap-1">
+                {bondQuality?.stable && <span title="Stable">🟢</span>}
+                {bondQuality?.growing && <span title="Growing">📈</span>}
+                {bondQuality?.harmonious && <span title="Harmonious">🎵</span>}
+                {bondQuality?.deep && <span title="Deep">💜</span>}
               </div>
             </div>
+            {memory && memory.totalSessions > 0 && (
+              <div className="text-gray-600 text-[10px]">
+                {memory.totalSessions} sessions · {soulLink.daysConnected}d
+              </div>
+            )}
           </div>
         </div>
+      )}
 
-        {/* Main Dashboard Grid */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          {/* Live Chart */}
+      {/* LEVEL 7.2: Empathy Ripples Container */}
+      {expression && expression.ripple.resonanceLevel > 0 && (
+        <div className="empathy-ripple-container">
+          {expression.ripple.waveTrails.slice(-10).map((wave, i) => (
+            <div
+              key={i}
+              className="empathy-ripple-wave"
+              style={{
+                left: wave.x,
+                top: wave.y,
+                width: wave.velocity * 20,
+                height: wave.velocity * 20,
+                opacity: Math.max(0, 1 - (Date.now() - wave.timestamp) / 2000),
+                borderColor: entity?.aura.color || '#00ffff'
+              }}
+            />
+          ))}
+        </div>
+      )}
+      
+      <PageTransition direction="up">
+        {/* LEVEL 5: Neural Synapse */}
+        <NeuralSynapse active={true} marketPulse={marketPulse}>
+        {/* LEVEL 4: Camera Drift */}
+        <CameraDrift>
+          {/* LEVEL 5: Quantum Ripple */}
+          <QuantumRipple trigger={dataUpdated}>
+          {/* LEVEL 4: Quantum Reactive on data update */}
+          <QuantumReactive trigger={dataUpdated}>
+            {/* LEVEL 7.3: Memory Drift Profile — Dashboard adapts to user's personality */}
+            <div className={`space-y-6 mood-transition ${expressionClasses} entity-drift-profile-${driftProfile} entity-drift-active`}>
+            {/* Dashboard Header */}
+            <ParallaxDepth depth={1}>
+            <div className={`flex items-center justify-between entity-shadow-v2 ${getShadowState() ? `entity-shadow-${getShadowState()}` : ''}`}>
+              <div>
+                <h1 
+                  className={`text-4xl font-bold neon-text mb-2 ${expression?.microGlow.type ? `micro-glow-${expression.microGlow.type}` : ''}`}
+                  style={{ color: theme.colors.neonCyan }}
+                >
+                  <AnimatedText variant="breathe-cyan">Mission Control</AnimatedText>
+                </h1>
+                <p style={{ color: theme.text.tertiary }}>
+                  Live trading dashboard — All systems operational
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div 
+              className={`w-3 h-3 rounded-full animate-pulse ${expression?.microGlow.type || ''}`}
+              style={{ 
+                background: theme.colors.success,
+                boxShadow: `0 0 15px ${theme.colors.success}` 
+              }}
+            />
+            <span className="text-sm font-medium" style={{ color: theme.colors.success }}>
+              LIVE
+            </span>
+          </div>
+        </div>
+        </ParallaxDepth>
+
+        {/* Stats Grid with Quantum Fields */}
+        <ParallaxDepth depth={2}>
+        <div ref={metricsRef} className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ${expressionClasses}`}>
+          <div className={`fade-in-up entity-shadow-v2 ${getShadowState() ? `entity-shadow-${getShadowState()}` : ''}`} style={{ animationDelay: '0.1s' }}>
+            <AdaptiveHUD mode="normal" priority={portfolioValue > 1000000}>
+            <QuantumField valueChanged={dataUpdated}>
+            <HUDWidget
+            title="Portfolio Value"
+            value={metricsLoading ? '...' : formatCurrency(portfolioValue)}
+            icon="💎"
+            color="cyan"
+            trend={portfolioValue > 0 ? 'up' : undefined}
+            trendValue={metricsLoading ? undefined : `${formatCurrency(portfolioValue - (portfolioValue - dailyPnL))}`}
+            />
+            </QuantumField>
+            </AdaptiveHUD>
+          </div>
+          <div className={`fade-in-up entity-shadow-v2 ${getShadowState() ? `entity-shadow-${getShadowState()}` : ''}`} style={{ animationDelay: '0.2s' }}>
+            <AdaptiveHUD mode="normal" priority={Math.abs(dailyPnL) > 10000}>
+            <QuantumField valueChanged={dataUpdated}>
+            <HUDWidget
+            title="24H P&L"
+            value={metricsLoading ? '...' : formatCurrency(dailyPnL)}
+            unit="USD"
+            icon="📈"
+            color={dailyPnL >= 0 ? 'success' : 'error'}
+            trend={dailyPnL >= 0 ? 'up' : 'down'}
+            trendValue={metricsLoading ? undefined : formatPercent((dailyPnL / (portfolioValue - dailyPnL)) * 100)}
+          />
+            </QuantumField>
+            </AdaptiveHUD>
+          </div>
+          <div className={`fade-in-up entity-shadow-v2 ${getShadowState() ? `entity-shadow-${getShadowState()}` : ''}`} style={{ animationDelay: '0.3s' }}>
+            <AdaptiveHUD mode="normal">
+            <QuantumField valueChanged={dataUpdated}>
+            <HUDWidget
+            title="Active Positions"
+            value={positionsLoading ? '...' : activePositionsCount.toString()}
+            icon="🎯"
+            color="magenta"
+          />
+            </QuantumField>
+            </AdaptiveHUD>
+          </div>
+          <div className={`fade-in-up entity-shadow-v2 ${getShadowState() ? `entity-shadow-${getShadowState()}` : ''}`} style={{ animationDelay: '0.4s' }}>
+            <AdaptiveHUD mode="normal">
+            <QuantumField valueChanged={dataUpdated}>
+            <HUDWidget
+              title="Win Rate"
+              value={metricsLoading ? '...' : winRate.toFixed(1)}
+              unit="%"
+              icon="🏆"
+              color={winRate >= 50 ? 'success' : 'cyan'}
+              trend={winRate >= 50 ? 'up' : undefined}
+              trendValue={winRate >= 50 ? 'Strong' : undefined}
+            />
+            </QuantumField>
+            </AdaptiveHUD>
+          </div>
+        </div>
+        </ParallaxDepth>        {/* Error Display */}
+        {metricsError && (
+          <div 
+            className="p-4 rounded-lg border fade-in-up"
+            style={{
+              background: 'rgba(255, 68, 68, 0.1)',
+              borderColor: theme.colors.error,
+            }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <div className="font-semibold" style={{ color: theme.colors.error }}>
+                  Backend Connection Error
+                </div>
+                <div className="text-sm" style={{ color: theme.text.secondary }}>
+                  Unable to fetch live dashboard data. Showing fallback values.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tabs Navigation */}
+        <NeonTabs
+          tabs={[
+            { id: 'overview', label: 'Overview', icon: '📊' },
+            { id: 'positions', label: 'Positions', icon: '💼' },
+            { id: 'orders', label: 'Orders', icon: '📝' },
+            { id: 'history', label: 'History', icon: '📜' },
+          ]}
+          defaultTab={activeTab}
+          onChange={setActiveTab}
+        />
+
+        {/* Main Content Area */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Chart Placeholder */}
           <div className="lg:col-span-2">
-            <div className="p-6 md:p-8 rounded-2xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-[#FFFBE7]">Live Performance</h2>
-                  <p className="text-sm text-[#FFFBE7]/60">Real-time profit tracking</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${workerStatus === 'running' ? 'bg-[#4ADE80] animate-pulse' : 'bg-[#7C2F39]'}`} />
-                  <span className="text-sm font-semibold text-[#FFFBE7]/60">
-                    {workerStatus === 'running' ? 'LIVE' : 'PAUSED'}
-                  </span>
+            <HoloCard title="Price Chart" subtitle="BTC/USDT • 15m" glowColor="cyan">
+              <div 
+                className="h-96 flex items-center justify-center rounded"
+                style={{ background: 'rgba(0, 0, 0, 0.3)' }}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📈</div>
+                  <p style={{ color: theme.text.tertiary }}>
+                    Interactive chart will load here
+                  </p>
                 </div>
               </div>
-              
-              {/* Chart SVG */}
-              <div className="relative h-64 md:h-80 bg-black/30 rounded-xl p-4">
-                <svg className="w-full h-full" viewBox="0 0 800 300" preserveAspectRatio="none">
-                  {/* Grid lines */}
-                  {[0, 1, 2, 3, 4].map(i => (
-                    <line
-                      key={i}
-                      x1="0"
-                      y1={i * 75}
-                      x2="800"
-                      y2={i * 75}
-                      stroke="rgba(124, 47, 57, 0.2)"
-                      strokeWidth="1"
-                    />
-                  ))}
-                  
-                  {/* Chart line */}
-                  <polyline
-                    points={chartData.map((value, index) => 
-                      `${(index / (chartData.length - 1)) * 800},${300 - (value / 150) * 300}`
-                    ).join(' ')}
-                    fill="none"
-                    stroke="url(#gradient)"
-                    strokeWidth="3"
-                    className="animate-draw-line"
-                  />
-                  
-                  {/* Gradient fill under line */}
-                  <defs>
-                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#F9D949" />
-                      <stop offset="50%" stopColor="#4ADE80" />
-                      <stop offset="100%" stopColor="#60A5FA" />
-                    </linearGradient>
-                    <linearGradient id="fillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#F9D949" stopOpacity="0.3" />
-                      <stop offset="100%" stopColor="#F9D949" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  
-                  <polygon
-                    points={`0,300 ${chartData.map((value, index) => 
-                      `${(index / (chartData.length - 1)) * 800},${300 - (value / 150) * 300}`
-                    ).join(' ')} 800,300`}
-                    fill="url(#fillGradient)"
-                  />
-                </svg>
-              </div>
-            </div>
+            </HoloCard>
           </div>
-          
-          {/* Live Updates Feed */}
-          <div>
-            <div className="p-6 rounded-2xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30 h-full">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-[#FFFBE7]">Live Updates</h3>
-                <div className={`w-2 h-2 rounded-full ${workerStatus === 'running' ? 'bg-[#4ADE80] animate-pulse' : 'bg-[#7C2F39]'}`} />
-              </div>
-              
-              <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
-                {liveUpdates.map((update) => (
-                  <div
-                    key={update.id}
-                    className={`p-3 rounded-lg border transition-all animate-slide-in ${
-                      update.type === 'trade'
-                        ? 'bg-[#4ADE80]/5 border-[#4ADE80]/30'
-                        : update.type === 'signal'
-                        ? 'bg-[#F9D949]/5 border-[#F9D949]/30'
-                        : 'bg-[#F87171]/5 border-[#F87171]/30'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
+
+          {/* Right Column - Live Feed */}
+          <div className="space-y-4">
+            <HoloCard title="Recent Trades" subtitle="Last 10 executions" glowColor="magenta">
+              {tradesLoading ? (
+                <div className="flex items-center justify-center h-48">
+                  <div className="text-center">
+                    <div className="text-4xl mb-2">⏳</div>
+                    <p style={{ color: theme.text.tertiary }}>Loading trades...</p>
+                  </div>
+                </div>
+              ) : recentTrades && recentTrades.length > 0 ? (
+                <div className="space-y-2">
+                  {recentTrades.slice(0, 10).map((trade: any, i: number) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-3 rounded glass-panel"
+                      style={{
+                        background: 'rgba(0, 0, 0, 0.3)',
+                        border: `1px solid ${theme.border.subtle}`,
+                      }}
+                    >
                       <div className="flex-1">
-                        <span className={`text-xs font-bold uppercase ${
-                          update.type === 'trade'
-                            ? 'text-[#4ADE80]'
-                            : update.type === 'signal'
-                            ? 'text-[#F9D949]'
-                            : 'text-[#F87171]'
-                        }`}>
-                          {update.type}
-                        </span>
-                        <p className="text-sm text-[#FFFBE7] mt-1">{update.message}</p>
-                        <span className="text-xs text-[#FFFBE7]/50 mt-1 block">{update.time}</span>
+                        <div className="font-semibold text-sm" style={{ color: theme.text.primary }}>
+                          {trade.symbol}
+                        </div>
+                        <div className="text-xs" style={{ color: theme.text.tertiary }}>
+                          {formatTime(trade.timestamp)}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div 
+                          className="font-bold text-sm"
+                          style={{ 
+                            color: trade.side === 'buy' || trade.side === 'BUY' ? theme.colors.success : theme.colors.error 
+                          }}
+                        >
+                          {(trade.side || 'BUY').toUpperCase()}
+                        </div>
+                        <div className="text-xs" style={{ color: theme.text.secondary }}>
+                          {trade.quantity} @ ${trade.price?.toFixed(2)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* System Health */}
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-[#FFFBE7] mb-6">System Health</h2>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* API Status */}
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30 hover:border-[#F9D949]/30 transition-all">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-[#4ADE80] rounded-xl blur-md animate-pulse" />
-                    <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-[#4ADE80] to-[#22C55E] flex items-center justify-center shadow-lg">
-                      <Server className="w-7 h-7 text-black" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-[#FFFBE7]">API Status</h3>
-                    <p className="text-[#FFFBE7]/60 text-sm">Backend Service</p>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-48">
+                  <div className="text-center">
+                    <div className="text-4xl mb-2">📭</div>
+                    <p style={{ color: theme.text.tertiary }}>No recent trades</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4ADE80] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-[#4ADE80]"></span>
-                  </span>
-                  <div className="w-3 h-3 rounded-full bg-[#4ADE80] animate-pulse" />
-                  <span className="text-[#4ADE80] font-bold">Online</span>
-                </div>
-              </div>
+              )}
+            </HoloCard>
 
+            <HoloCard title="System Health" subtitle="All systems nominal" glowColor="cyan">
               <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#FFFBE7]/60">Response Time</span>
-                  <span className="text-[#FFFBE7] font-semibold">42ms</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#FFFBE7]/60">Uptime</span>
-                  <span className="text-[#FFFBE7] font-semibold">99.97%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#FFFBE7]/60">Last Check</span>
-                  <span className="text-[#FFFBE7] font-semibold">2 sec ago</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Worker Status */}
-            <div className="p-8 rounded-2xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#F9D949] to-[#FDE68A] flex items-center justify-center">
-                    <Zap className="w-7 h-7 text-black" />
+                {strategiesLoading ? (
+                  <div className="text-center py-4">
+                    <div className="text-2xl mb-2">⏳</div>
+                    <p className="text-sm" style={{ color: theme.text.tertiary }}>Loading...</p>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-[#FFFBE7]">Worker Status</h3>
-                    <p className="text-[#FFFBE7]/60 text-sm">Trading Engine</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#F9D949] animate-pulse" />
-                  <span className="text-[#F9D949] font-bold">Active</span>
-                </div>
+                ) : strategies && strategies.length > 0 ? (
+                  strategies.slice(0, 4).map((strategy: any) => (
+                    <div key={strategy.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm" style={{ color: theme.text.secondary }}>
+                          {strategy.name}
+                        </span>
+                        <span 
+                          className="text-sm font-bold" 
+                          style={{ 
+                            color: strategy.status === 'running' ? theme.colors.success : theme.colors.warning 
+                          }}
+                        >
+                          {strategy.status?.toUpperCase()}
+                        </span>
+                      </div>
+                      <div 
+                        className="h-1.5 rounded-full overflow-hidden"
+                        style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                      >
+                        <div
+                          className="h-full transition-all animate-pulse-glow"
+                          style={{
+                            width: `${strategy.performance || 85}%`,
+                            background: strategy.status === 'running' ? theme.colors.success : theme.colors.warning,
+                            boxShadow: `0 0 10px ${strategy.status === 'running' ? theme.colors.success : theme.colors.warning}`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  [
+                    { name: 'Trading Engine', status: 100 },
+                    { name: 'Data Feed', status: 98 },
+                    { name: 'Risk Manager', status: 100 },
+                    { name: 'Order Router', status: 95 },
+                  ].map((system) => (
+                    <div key={system.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm" style={{ color: theme.text.secondary }}>
+                          {system.name}
+                        </span>
+                        <span className="text-sm font-bold" style={{ color: theme.colors.success }}>
+                          {system.status}%
+                        </span>
+                      </div>
+                      <div 
+                        className="h-1.5 rounded-full overflow-hidden"
+                        style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                      >
+                        <div
+                          className="h-full transition-all animate-pulse-glow"
+                          style={{
+                            width: `${system.status}%`,
+                            background: theme.colors.success,
+                            boxShadow: `0 0 10px ${theme.colors.success}`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#FFFBE7]/60">Tasks Processed</span>
-                  <span className="text-[#FFFBE7] font-semibold">1,247</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#FFFBE7]/60">Queue Size</span>
-                  <span className="text-[#FFFBE7] font-semibold">3 pending</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#FFFBE7]/60">Last Activity</span>
-                  <span className="text-[#FFFBE7] font-semibold">1 min ago</span>
-                </div>
-              </div>
-            </div>
+            </HoloCard>
           </div>
         </div>
-
-        {/* Recent Activity */}
-        <div>
-          <h2 className="text-3xl font-bold text-[#FFFBE7] mb-6">Recent Trades</h2>
-          
-          <div className="p-8 rounded-2xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30">
-            <div className="space-y-4">
-              {[
-                { pair: 'BTC/USDT', type: 'BUY', price: '$43,250', profit: '+$245', time: '2 min ago', status: 'success' },
-                { pair: 'ETH/USDT', type: 'SELL', price: '$2,340', profit: '+$189', time: '15 min ago', status: 'success' },
-                { pair: 'SOL/USDT', type: 'BUY', price: '$98.50', profit: '+$67', time: '1 hour ago', status: 'success' },
-                { pair: 'ADA/USDT', type: 'SELL', price: '$0.52', profit: '-$23', time: '2 hours ago', status: 'loss' },
-              ].map((trade, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 rounded-xl bg-black/50 border border-[#7C2F39]/20 hover:border-[#F9D949]/30 transition-all"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`px-3 py-1 rounded-lg text-xs font-bold ${
-                      trade.type === 'BUY' 
-                        ? 'bg-[#4ADE80]/20 text-[#4ADE80]' 
-                        : 'bg-[#F87171]/20 text-[#F87171]'
-                    }`}>
-                      {trade.type}
-                    </div>
-                    <div>
-                      <div className="text-[#FFFBE7] font-semibold">{trade.pair}</div>
-                      <div className="text-sm text-[#FFFBE7]/50">{trade.time}</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[#FFFBE7] font-semibold">{trade.price}</div>
-                    <div className={`text-sm font-semibold ${
-                      trade.status === 'success' ? 'text-[#4ADE80]' : 'text-[#F87171]'
-                    }`}>
-                      {trade.profit}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* API Debug Section */}
-        <div className="mt-8 p-6 rounded-2xl bg-black/50 border border-[#7C2F39]/30">
-          <h2 className="text-xl font-bold text-[#F9D949] mb-4">🔍 API Debug Info</h2>
-          
-          <div className="space-y-4">
-            {/* Backend Health */}
-            <div>
-              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">
-                Backend Health (/api/health)
-                {isLoadingHealth && <span className="ml-2 text-xs text-[#FFFBE7]/50">Loading...</span>}
-              </h3>
-              <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#4ADE80] border border-[#7C2F39]/20">
-                {apiError ? `Error: ${apiError}` : (apiHealth ? JSON.stringify(apiHealth, null, 2) : 'Waiting...')}
-              </pre>
-            </div>
-
-            {/* Worker Status */}
-            <div>
-              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">
-                Worker Status (/api/worker/status)
-                {workerLoading && <span className="ml-2 text-xs text-[#FFFBE7]/50">Loading...</span>}
-              </h3>
-              <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#F9D949] border border-[#7C2F39]/20">
-                {workerError ? `Error: ${workerError}` : (workerStatus ? JSON.stringify(workerStatus, null, 2) : 'Waiting...')}
-              </pre>
-            </div>
-
-            {/* Connection Info */}
-            <div>
-              <h3 className="text-sm font-semibold text-[#FFFBE7]/80 mb-2">Connection Info</h3>
-              <pre className="bg-black/80 p-3 rounded-lg overflow-x-auto text-xs text-[#60A5FA] border border-[#7C2F39]/20">
-{`API Base URL: ${process.env.NEXT_PUBLIC_API_URL || 'https://bagbot2-backend.onrender.com'}
-Connection Status: ${connectionStatus}
-Last Update: ${lastUpdate.toLocaleString()}
-Auto Refresh: ${autoRefresh ? 'Enabled (30s)' : 'Disabled'}
-Worker Toggle: ${isTogglingWorker ? 'In Progress' : 'Ready'}`}
-              </pre>
-            </div>
-          </div>
-        </div>
-        </div>
-      </PageContent>
-    </div>
+      </div>
+      </QuantumReactive>
+      </QuantumRipple>
+      </CameraDrift>
+      </NeuralSynapse>
+      </PageTransition>
+    </SciFiShell>
   );
 }

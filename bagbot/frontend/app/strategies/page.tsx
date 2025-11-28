@@ -1,176 +1,283 @@
 'use client';
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Home, Target, TrendingUp, Shield, Zap, Play, Pause, Settings } from 'lucide-react';
-import Navigation from '../components/Navigation';
-import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
-import PageContent from '@/components/Layout/PageContent';
+import { SciFiShell } from '../sci-fi-shell';
+import { HoloCard } from '@/design-system/components/cards/HoloCard';
+import { HoloButton } from '@/design-system/components/buttons/HoloButton';
+import { NeonSwitch } from '@/design-system/components/inputs/NeonSwitch';
+import { useTheme } from '../providers';
+import PageTransition from '@/components/PageTransition';
+import AnimatedText from '@/components/AnimatedText';
+import AnimatedCard from '@/components/AnimatedCard';
+import { useAPI, useAPIMutation } from '@/lib/hooks/useAPI';
+import { useState, useEffect } from 'react';
+import { ParticleUniverse, QuantumField, HoloRefract } from '@/components/quantum/QuantumEffects';
+import { AdaptiveHUD, GravityWarp } from '@/components/ascension/AscensionEffects';
 
 export default function StrategiesPage() {
-  const [strategies, setStrategies] = useState<any[]>([]);
-  const [selectedStrategy, setSelectedStrategy] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { theme } = useTheme();
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [dataUpdated, setDataUpdated] = useState(false);
 
-  useEffect(() => {
-    fetchStrategies();
-  }, []);
+  // Fetch strategies list
+  const { data: strategiesData, loading: strategiesLoading, refetch } = useAPI<any[]>('/api/strategies');
 
-  const fetchStrategies = async () => {
+  // Strategy action mutations
+  const startStrategy = useAPIMutation('/api/strategies/start', 'POST');
+  const stopStrategy = useAPIMutation('/api/strategies/stop', 'POST');
+  const pauseStrategy = useAPIMutation('/api/strategies/pause', 'POST');
+
+  // Handle strategy actions
+  const handleStrategyAction = async (strategyId: string, action: 'start' | 'stop' | 'pause') => {
+    setActionLoading(strategyId);
     try {
-      const response = await fetch('http://localhost:8000/api/strategies');
-      const data = await response.json();
-      setStrategies(data.strategies || []);
+      if (action === 'start') await startStrategy({ strategy_id: strategyId });
+      else if (action === 'stop') await stopStrategy({ strategy_id: strategyId });
+      else if (action === 'pause') await pauseStrategy({ strategy_id: strategyId });
+      await refetch();
     } catch (error) {
-      console.error('Failed to fetch strategies:', error);
+      console.error('Strategy action failed:', error);
     } finally {
-      setLoading(false);
+      setActionLoading(null);
     }
   };
 
-  const toggleStrategy = async (strategyId: string, enabled: boolean) => {
-    try {
-      const endpoint = enabled ? 'disable' : 'enable';
-      await fetch(`http://localhost:8000/api/strategies/${strategyId}/${endpoint}`, {
-        method: 'POST'
-      });
-      fetchStrategies();
-    } catch (error) {
-      console.error('Failed to toggle strategy:', error);
-    }
-  };
+  const strategies = strategiesData ?? [
+    {
+      id: 'demo1',
+      name: 'Neural Momentum Alpha',
+      status: 'active',
+      profit24h: '+$4,821',
+      winRate: '78.4%',
+      positions: 5,
+      risk: 'LOW',
+    },
+    {
+      id: 'demo2',
+      name: 'Mean Reversion Pro',
+      status: 'active',
+      profit24h: '+$3,247',
+      winRate: '81.2%',
+      positions: 3,
+      risk: 'MEDIUM',
+    },
+    {
+      id: 'demo3',
+      name: 'Breakout Hunter',
+      status: 'active',
+      profit24h: '+$2,891',
+      winRate: '71.8%',
+      positions: 4,
+      risk: 'HIGH',
+    },
+    {
+      id: 'demo4',
+      name: 'Grid Trading Bot',
+      status: 'paused',
+      profit24h: '+$1,456',
+      winRate: '88.9%',
+      positions: 0,
+      risk: 'LOW',
+    },
+  ];
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Beginner': return 'text-[#4ADE80]';
-      case 'Intermediate': return 'text-[#F9D949]';
-      case 'Advanced': return 'text-[#7C2F39]';
-      default: return 'text-[#FFFBE7]';
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case 'LOW': return theme.colors.success;
+      case 'MEDIUM': return theme.colors.warning;
+      case 'HIGH': return theme.colors.error;
+      default: return theme.text.secondary;
     }
   };
 
   return (
-    <>
-      <LiveTickerTape />
-      <Navigation active="/strategies" />
-      <PageContent>
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <nav className="mb-6 flex items-center gap-2 text-sm">
-            <Link href="/" className="text-[#FFFBE7]/60 hover:text-[#F9D949] transition-colors flex items-center gap-1">
-              <Home className="w-4 h-4" />
-              Home
-            </Link>
-            <span className="text-[#FFFBE7]/30">/</span>
-            <span className="text-[#F9D949] font-semibold">Strategy Arsenal</span>
-          </nav>
-
-          {/* Title */}
-          <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-black text-[#FFFBE7] mb-3">
+    <SciFiShell>
+      <ParticleUniverse enabled={true} />
+      
+      <PageTransition direction="up">
+      <GravityWarp isEntering={true}>
+      <HoloRefract>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <AnimatedText variant="breathe-cyan">
+            <h1 
+              className="text-4xl font-bold neon-text mb-2"
+              style={{ color: theme.colors.neonCyan }}
+            >
               Strategy Arsenal
             </h1>
-            <p className="text-lg text-[#FFFBE7]/70">
-              9 institutional-grade trading strategies
+            </AnimatedText>
+            <p style={{ color: theme.text.tertiary }}>
+              Manage and monitor your algorithmic trading strategies
             </p>
           </div>
+          <HoloButton variant="primary" size="lg" className="hover-lift hover-glow transition-smooth">
+            + Deploy New Strategy
+          </HoloButton>
+        </div>
 
-          {/* Stats Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="p-4 rounded-xl bg-gradient-to-br from-[#7C2F39]/20 to-black border border-[#7C2F39]/50">
-              <div className="text-sm text-[#FFFBE7]/60 mb-1">Total Strategies</div>
-              <div className="text-2xl font-bold text-[#F9D949]">{strategies.length}</div>
-            </div>
-            <div className="p-4 rounded-xl bg-gradient-to-br from-[#7C2F39]/20 to-black border border-[#7C2F39]/50">
-              <div className="text-sm text-[#FFFBE7]/60 mb-1">Active</div>
-              <div className="text-2xl font-bold text-[#4ADE80]">
-                {strategies.filter(s => s.enabled).length}
+        {/* Strategy Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[
+            { label: 'Active Strategies', value: '3', color: 'success' },
+            { label: 'Total Positions', value: '12', color: 'cyan' },
+            { label: '24H Combined P&L', value: '+$11,959', color: 'success' },
+            { label: 'Avg Win Rate', value: '79.8%', color: 'magenta' },
+          ].map((stat, idx) => (
+            <div
+              key={stat.label}
+              className="p-4 rounded glass-panel holo-border animate-fade-in-up"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: `1px solid ${theme.border.default}`,
+                animationDelay: `${0.1 + idx * 0.1}s`,
+              }}
+            >
+              <div className="text-sm mb-1" style={{ color: theme.text.tertiary }}>
+                {stat.label}
               </div>
-            </div>
-            <div className="p-4 rounded-xl bg-gradient-to-br from-[#7C2F39]/20 to-black border border-[#7C2F39]/50">
-              <div className="text-sm text-[#FFFBE7]/60 mb-1">Avg Win Rate</div>
-              <div className="text-2xl font-bold text-[#F9D949]">
-                {strategies.length > 0 
-                  ? `${(strategies.reduce((acc, s) => acc + s.win_rate, 0) / strategies.length * 100).toFixed(0)}%`
-                  : '0%'
-                }
-              </div>
-            </div>
-            <div className="p-4 rounded-xl bg-gradient-to-br from-[#7C2F39]/20 to-black border border-[#7C2F39]/50">
-              <div className="text-sm text-[#FFFBE7]/60 mb-1">Total Signals</div>
-              <div className="text-2xl font-bold text-[#F9D949]">1,247</div>
-            </div>
-          </div>
-
-          {/* Strategy Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {strategies.map((strategy) => (
-              <div
-                key={strategy.id}
-                className={`p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-[1.02] ${
-                  strategy.enabled
-                    ? 'bg-gradient-to-br from-[#7C2F39]/10 to-black border-[#F9D949]/50 shadow-lg shadow-[#F9D949]/10'
-                    : 'bg-gradient-to-br from-[#1a0a0f] to-black border-[#7C2F39]/30 opacity-70'
-                }`}
+              <div 
+                className="text-2xl font-bold"
+                style={{ color: theme.colors[stat.color as keyof typeof theme.colors] }}
               >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
+                {stat.value}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Strategies List */}
+        <div className="space-y-4">
+          {strategies.map((strategy: any, index: number) => (
+            <AnimatedCard key={strategy.id || index} variant="pulse-cyan" delay={100 + index * 100}>
+            <HoloCard
+              glowColor={strategy.status === 'active' || strategy.status === 'running' ? 'cyan' : 'magenta'}
+            >
+              <div className="flex items-center justify-between">
+                {/* Left: Strategy Info */}
+                <div className="flex items-center gap-6">
                   <div>
-                    <h3 className="text-xl font-bold text-[#FFFBE7] mb-1">
+                    <h3 
+                      className="text-xl font-bold mb-1"
+                      style={{ color: theme.text.primary }}
+                    >
                       {strategy.name}
                     </h3>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-semibold ${getDifficultyColor(strategy.difficulty)}`}>
-                        {strategy.difficulty}
+                    <div className="flex items-center gap-4">
+                      <span 
+                        className="px-3 py-1 rounded text-xs font-bold uppercase"
+                        style={{ 
+                          background: strategy.status === 'active' 
+                            ? 'rgba(0, 255, 170, 0.2)' 
+                            : 'rgba(255, 170, 0, 0.2)',
+                          color: strategy.status === 'active' 
+                            ? theme.colors.success 
+                            : theme.colors.warning 
+                        }}
+                      >
+                        {strategy.status}
                       </span>
-                      <span className="text-[#FFFBE7]/40">•</span>
-                      <span className="text-sm text-[#FFFBE7]/60">
-                        Win Rate: {(strategy.win_rate * 100).toFixed(0)}%
+                      <span 
+                        className="text-sm"
+                        style={{ color: theme.text.tertiary }}
+                      >
+                        Risk: <span style={{ color: getRiskColor(strategy.risk) }}>
+                          {strategy.risk}
+                        </span>
                       </span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => toggleStrategy(strategy.id, strategy.enabled)}
-                    className={`p-3 rounded-xl transition-all ${
-                      strategy.enabled
-                        ? 'bg-[#4ADE80]/20 border-2 border-[#4ADE80]/50 text-[#4ADE80]'
-                        : 'bg-black/50 border-2 border-[#7C2F39]/30 text-[#FFFBE7]/40'
-                    }`}
-                  >
-                    {strategy.enabled ? <Play className="w-5 h-5" /> : <Pause className="w-5 h-5" />}
-                  </button>
                 </div>
 
-                {/* Description */}
-                <p className="text-sm text-[#FFFBE7]/70 mb-4">
-                  {strategy.description}
-                </p>
+                {/* Center: Metrics */}
+                <div className="flex items-center gap-8">
+                  <div className="text-center">
+                    <div className="text-sm mb-1" style={{ color: theme.text.tertiary }}>
+                      24H P&L
+                    </div>
+                    <div 
+                      className="text-xl font-bold"
+                      style={{ color: theme.colors.success }}
+                    >
+                      {strategy.profit24h}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm mb-1" style={{ color: theme.text.tertiary }}>
+                      Win Rate
+                    </div>
+                    <div 
+                      className="text-xl font-bold"
+                      style={{ color: theme.colors.neonCyan }}
+                    >
+                      {strategy.winRate}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm mb-1" style={{ color: theme.text.tertiary }}>
+                      Positions
+                    </div>
+                    <div 
+                      className="text-xl font-bold"
+                      style={{ color: theme.colors.neonMagenta }}
+                    >
+                      {strategy.positions}
+                    </div>
+                  </div>
+                </div>
 
-                {/* Actions */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSelectedStrategy(strategy.id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#7C2F39]/20 border border-[#7C2F39]/50 text-[#F9D949] hover:bg-[#7C2F39]/30 transition-all"
+                {/* Right: Controls */}
+                <div className="flex items-center gap-4">
+                  <NeonSwitch
+                    checked={strategy.status === 'active' || strategy.status === 'running'}
+                    onChange={() => {
+                      const action = strategy.status === 'active' || strategy.status === 'running' ? 'pause' : 'start';
+                      handleStrategyAction(strategy.id, action);
+                    }}
+                    size="md"
+                  />
+                  <HoloButton 
+                    variant="ghost" 
+                    size="sm" 
+                    className="hover-lift transition-smooth"
                   >
-                    <TrendingUp className="w-4 h-4" />
-                    Performance
-                  </button>
-                  <Link
-                    href={`/strategies/${strategy.id}`}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#7C2F39]/20 border border-[#7C2F39]/50 text-[#F9D949] hover:bg-[#7C2F39]/30 transition-all"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Configure
-                  </Link>
+                    {actionLoading === strategy.id ? '⏳' : '⚙️'}
+                  </HoloButton>
+                  <HoloButton variant="ghost" size="sm" className="hover-lift transition-smooth">
+                    📊
+                  </HoloButton>
                 </div>
               </div>
-            ))}
-          </div>
+            </HoloCard>
+            </AnimatedCard>
+          ))}
         </div>
-      </PageContent>
-    </>
+
+        {/* Strategy Performance Chart */}
+        <AnimatedCard variant="pulse-magenta" delay={300}>
+        <HoloCard
+          title="Combined Performance"
+          subtitle="Last 7 days"
+          glowColor="cyan"
+        >
+          <div 
+            className="h-64 flex items-center justify-center rounded"
+            style={{ background: 'rgba(0, 0, 0, 0.3)' }}
+          >
+            <div className="text-center">
+              <div className="text-6xl mb-4">📈</div>
+              <p style={{ color: theme.text.tertiary }}>
+                Performance chart visualization will load here
+              </p>
+            </div>
+          </div>
+        </HoloCard>
+        </AnimatedCard>
+      </div>
+      </HoloRefract>
+      </GravityWarp>
+      </PageTransition>
+    </SciFiShell>
   );
 }

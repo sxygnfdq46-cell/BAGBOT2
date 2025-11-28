@@ -1,294 +1,294 @@
 'use client';
 
-export const dynamic = "force-dynamic";
-export const fetchCache = "force-no-store";
-
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Play, Home, LayoutDashboard, BarChart3, FileText, TrendingUp, TrendingDown, DollarSign, Target, CheckCircle, XCircle, RefreshCw, Download, Upload, Info } from 'lucide-react';
-import Navigation from '../components/Navigation';
-import LiveTickerTape from '@/components/Dashboard/LiveTickerTape';
-import PageContent from '@/components/Layout/PageContent';
-import { useJobStatus } from '@/utils/hooks';
-import api from '@/utils/apiService';
-import { getUserFriendlyError } from '@/utils/api';
+import { SciFiShell } from '../sci-fi-shell';
+import { HoloCard } from '@/design-system/components/cards/HoloCard';
+import { HoloButton } from '@/design-system/components/buttons/HoloButton';
+import { GlassInput } from '@/design-system/components/inputs/GlassInput';
+import { NeonTabs } from '@/design-system/components/tabs/NeonTabs';
+import { useTheme } from '../providers';
+import { useState } from 'react';
+import PageTransition from '@/components/PageTransition';
+import AnimatedText from '@/components/AnimatedText';
+import AnimatedCard from '@/components/AnimatedCard';
+import { useAPI, useAPIMutation } from '@/lib/hooks/useAPI';
+import { ParticleUniverse, QuantumField, HoloRefract } from '@/components/quantum/QuantumEffects';
+import { AdaptiveHUD, AuroraStream } from '@/components/ascension/AscensionEffects';
 
 export default function BacktestPage() {
-  const [selectedDataFile, setSelectedDataFile] = useState('tests/data/BTCUSDT-1h-merged.csv');
-  const [selectedGenomeFile, setSelectedGenomeFile] = useState('');
-  const [customGenome, setCustomGenome] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const { theme } = useTheme();
+  const [activeTab, setActiveTab] = useState('config');
 
-  // Use custom hook for job status tracking
-  const { status: jobStatus, results: backtestResults, loading: jobLoading, error: jobError } = useJobStatus(currentJobId || null, 'backtest');
+  // Fetch backtest configs
+  const { data: configs } = useAPI<any[]>('/api/backtest/configs');
 
-  const handleSubmitBacktest = async () => {
-    if (!selectedDataFile) {
-      setSubmitError('Please select a data file');
-      return;
-    }
+  // Fetch recent backtest results
+  const { data: results } = useAPI<any[]>('/api/backtest/results?limit=10');
 
-    setIsSubmitting(true);
-    setSubmitError(null);
+  // Run backtest mutation
+  const runBacktest = useAPIMutation('/api/backtest/run', 'POST');
 
+  const handleRunBacktest = async (configId: string) => {
     try {
-      const response = await api.runBacktest({
-        data_file: selectedDataFile,
-        genome_file: selectedGenomeFile || undefined
-      });
-
-      setCurrentJobId(response.data.job_id);
+      await runBacktest({ config_id: configId });
     } catch (error) {
-      const errorMsg = getUserFriendlyError(error);
-      setSubmitError(errorMsg);
-      console.error('Failed to submit backtest:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDownloadResults = async () => {
-    if (!backtestResults) return;
-
-    try {
-      const blob = new Blob([JSON.stringify(backtestResults, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `backtest-${currentJobId}-results.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Failed to download results:', error);
+      console.error('Backtest failed:', error);
     }
   };
 
   return (
-    <>
-      <LiveTickerTape />
-      <Navigation active="/backtest" />
-      <PageContent>
-        <div className="max-w-7xl mx-auto">
-          {/* Navigation */}
-          <nav className="mb-6 md:mb-8 flex items-center gap-2 text-sm">
-            <Link href="/" className="text-[#FFFBE7]/60 hover:text-[#F9D949] transition-colors flex items-center gap-1">
-              <Home className="w-4 h-4" />
-              <span className="hidden sm:inline">Home</span>
-            </Link>
-            <span className="text-[#FFFBE7]/30">/</span>
-            <span className="text-[#F9D949] font-semibold">Backtest</span>
-          </nav>
-
-          {/* Quick Navigation */}
-          <div className="mb-6 md:mb-8 flex flex-wrap gap-2 md:gap-3">
-            <Link href="/dashboard" className="px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7]/60 hover:border-[#F9D949]/50 hover:text-[#F9D949] font-semibold text-sm transition-all flex items-center gap-2">
-              <LayoutDashboard className="w-4 h-4" />
-              Dashboard
-            </Link>
-            <Link href="/backtest" className="px-4 py-2 rounded-lg bg-[#7C2F39] border border-[#F9D949] text-[#FFFBE7] font-semibold text-sm transition-all">
-              Backtest
-            </Link>
-            <Link href="/optimizer" className="px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7]/60 hover:border-[#F9D949]/50 hover:text-[#F9D949] font-semibold text-sm transition-all flex items-center gap-2">
-              <Target className="w-4 h-4" />
-              Optimizer
-            </Link>
-            <Link href="/artifacts" className="px-4 py-2 rounded-lg bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7]/60 hover:border-[#F9D949]/50 hover:text-[#F9D949] font-semibold text-sm transition-all flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Artifacts
-            </Link>
-          </div>
-
-          {/* Header */}
-          <div className="mb-8 md:mb-12">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black mb-2 md:mb-3">
-              <span className="bg-gradient-to-r from-[#FFFBE7] to-[#F9D949] bg-clip-text text-transparent">
-                Backtest Engine
-              </span>
+    <SciFiShell>
+      <ParticleUniverse enabled={true} />
+      
+      <PageTransition direction="up">
+      <HoloRefract>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <AnimatedText variant="breathe-cyan">
+            <h1 
+              className="text-4xl font-bold neon-text mb-2"
+              style={{ color: theme.colors.neonCyan }}
+            >
+              Backtesting Lab
             </h1>
-            <p className="text-[#FFFBE7]/60 text-base md:text-lg">Test strategies against historical data</p>
+            </AnimatedText>
+            <p style={{ color: theme.text.tertiary }}>
+              Test strategies against historical data
+            </p>
           </div>
-
-          {/* Backtest Configuration */}
-          <div className="mb-6 p-6 md:p-8 rounded-2xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30">
-            <h2 className="text-2xl font-bold text-[#FFFBE7] mb-6">Configuration</h2>
-
-            {/* Data File Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-[#FFFBE7] mb-3">
-                Market Data File
-              </label>
-              <select
-                value={selectedDataFile}
-                onChange={(e) => setSelectedDataFile(e.target.value)}
-                disabled={isSubmitting || jobLoading}
-                className="w-full px-4 py-3 rounded-xl bg-[#1a0a0f] border-2 border-[#7C2F39] text-[#F9D949] font-bold focus:border-[#F9D949] focus:outline-none transition-all cursor-pointer"
-              >
-                <option value="tests/data/BTCUSDT-1h-merged.csv">BTC/USDT 1h Historical</option>
-                <option value="tests/data/ETHUSDT-1h-merged.csv">ETH/USDT 1h Historical</option>
-                <option value="tests/data/custom.csv">Custom Data</option>
-              </select>
-            </div>
-
-            {/* Genome File Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-[#FFFBE7] mb-3">
-                Genome File (Optional)
-              </label>
-              <input
-                type="text"
-                value={selectedGenomeFile}
-                onChange={(e) => setSelectedGenomeFile(e.target.value)}
-                placeholder="e.g., artifacts/genomes/best_genome_dual.json"
-                disabled={isSubmitting || jobLoading}
-                className="w-full px-4 py-3 rounded-xl bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7] placeholder-[#FFFBE7]/30 focus:border-[#F9D949] focus:outline-none transition-all"
-              />
-              <p className="text-xs text-[#FFFBE7]/50 mt-2">Leave empty to use default brain configuration</p>
-            </div>
-
-            {/* Custom Genome JSON */}
-            <div className="mb-6">
-              <label className="block text-sm font-semibold text-[#FFFBE7] mb-3">
-                Or Paste Genome JSON
-              </label>
-              <textarea
-                value={customGenome}
-                onChange={(e) => setCustomGenome(e.target.value)}
-                placeholder='{"fast_ma": 12, "slow_ma": 26, ...}'
-                disabled={isSubmitting || jobLoading}
-                rows={6}
-                className="w-full px-4 py-3 rounded-xl bg-black/50 border border-[#7C2F39]/30 text-[#FFFBE7] placeholder-[#FFFBE7]/30 focus:border-[#F9D949] focus:outline-none transition-all font-mono text-sm"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2 text-sm text-[#FFFBE7]/60">
-                <Info className="w-4 h-4" />
-                <span>Backtest runs asynchronously</span>
-              </div>
-              <button
-                onClick={handleSubmitBacktest}
-                disabled={isSubmitting || !selectedDataFile || jobLoading}
-                className="px-8 py-3 rounded-xl bg-gradient-to-r from-[#7C2F39] to-[#991B1B] text-[#FFFBE7] font-bold hover:from-[#991B1B] hover:to-[#7C2F39] transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <>
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-5 h-5" />
-                    Run Backtest
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Submit Error */}
-            {submitError && (
-              <div className="mt-4 p-4 rounded-xl bg-[#F87171]/10 border border-[#F87171]/30 flex items-center gap-3">
-                <XCircle className="w-5 h-5 text-[#F87171]" />
-                <p className="text-sm text-[#F87171]">{submitError}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Job Status */}
-          {currentJobId && (
-            <div className="mb-6 p-6 md:p-8 rounded-2xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-[#FFFBE7]">Job Status</h2>
-                {jobStatus && (
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    jobStatus === 'completed' ? 'bg-[#4ADE80]/20 text-[#4ADE80]' :
-                    jobStatus === 'failed' ? 'bg-[#F87171]/20 text-[#F87171]' :
-                    'bg-[#F9D949]/20 text-[#F9D949]'
-                  }`}>
-                    {jobStatus.toUpperCase()}
-                  </span>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-[#FFFBE7]/60 text-sm">Job ID:</span>
-                  <span className="text-[#FFFBE7] font-mono text-sm">{currentJobId}</span>
-                </div>
-
-                {jobLoading && (
-                  <div className="text-center py-4">
-                    <RefreshCw className="w-6 h-6 text-[#F9D949] animate-spin mx-auto mb-2" />
-                    <p className="text-[#FFFBE7]/60 text-sm">Checking status...</p>
-                  </div>
-                )}
-
-                {jobError && (
-                  <div className="p-4 rounded-xl bg-[#F87171]/10 border border-[#F87171]/30">
-                    <p className="text-sm text-[#F87171]">{jobError}</p>
-                  </div>
-                )}
-
-                {jobStatus === 'completed' && backtestResults && (
-                  <div className="mt-4 space-y-4">
-                    <h3 className="text-lg font-bold text-[#FFFBE7]">Results</h3>
-
-                    {/* Metrics Grid */}
-                    <div className="grid md:grid-cols-3 gap-4">
-                      {backtestResults.total_return !== undefined && (
-                        <div className="p-4 rounded-xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30">
-                          <div className="flex items-center gap-2 mb-2">
-                            <TrendingUp className="w-5 h-5 text-[#4ADE80]" />
-                            <span className="text-sm text-[#FFFBE7]/60">Total Return</span>
-                          </div>
-                          <div className="text-2xl font-black text-[#4ADE80]">
-                            {(backtestResults.total_return * 100).toFixed(2)}%
-                          </div>
-                        </div>
-                      )}
-
-                      {backtestResults.sharpe_ratio !== undefined && (
-                        <div className="p-4 rounded-xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Target className="w-5 h-5 text-[#F9D949]" />
-                            <span className="text-sm text-[#FFFBE7]/60">Sharpe Ratio</span>
-                          </div>
-                          <div className="text-2xl font-black text-[#F9D949]">
-                            {backtestResults.sharpe_ratio.toFixed(3)}
-                          </div>
-                        </div>
-                      )}
-
-                      {backtestResults.max_drawdown !== undefined && (
-                        <div className="p-4 rounded-xl bg-gradient-to-br from-[#7C2F39]/10 to-black border border-[#7C2F39]/30">
-                          <div className="flex items-center gap-2 mb-2">
-                            <TrendingDown className="w-5 h-5 text-[#F87171]" />
-                            <span className="text-sm text-[#FFFBE7]/60">Max Drawdown</span>
-                          </div>
-                          <div className="text-2xl font-black text-[#F87171]">
-                            {(backtestResults.max_drawdown * 100).toFixed(2)}%
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Download Button */}
-                    <button
-                      onClick={handleDownloadResults}
-                      className="w-full py-3 rounded-xl bg-[#7C2F39]/50 hover:bg-[#7C2F39] text-[#FFFBE7] border border-[#7C2F39]/30 hover:border-[#F9D949]/50 transition-all flex items-center justify-center gap-2 font-semibold"
-                    >
-                      <Download className="w-5 h-5" />
-                      Download Full Results
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          <HoloButton variant="primary" size="lg" className="hover-lift hover-glow transition-smooth">
+            ▶ Run Backtest
+          </HoloButton>
         </div>
-      </PageContent>
-    </>
+
+        {/* Tabs */}
+        <NeonTabs
+          tabs={[
+            { id: 'config', label: 'Configuration', icon: '⚙️' },
+            { id: 'results', label: 'Results', icon: '📊' },
+            { id: 'history', label: 'History', icon: '📜' },
+          ]}
+          defaultTab={activeTab}
+          onChange={setActiveTab}
+        />
+
+        {/* Configuration Tab */}
+        {activeTab === 'config' && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AnimatedCard variant="pulse-cyan" delay={100}>
+            <HoloCard title="Strategy Selection" subtitle="Choose strategy to test" glowColor="cyan">
+              <div className="space-y-4">
+                <GlassInput label="Strategy" value="Neural Momentum Alpha" />
+                <GlassInput label="Trading Pair" value="BTC/USDT" />
+                <GlassInput label="Timeframe" value="15m" />
+              </div>
+            </HoloCard>
+            </AnimatedCard>
+
+            <AnimatedCard variant="pulse-magenta" delay={150}>
+            <HoloCard title="Date Range" subtitle="Historical period" glowColor="magenta">
+              <div className="space-y-4">
+                <GlassInput label="Start Date" value="2024-01-01" type="date" />
+                <GlassInput label="End Date" value="2024-11-26" type="date" />
+                <div className="text-sm" style={{ color: theme.text.tertiary }}>
+                  Duration: 330 days
+                </div>
+              </div>
+            </HoloCard>
+            </AnimatedCard>
+
+            <AnimatedCard variant="pulse-cyan" delay={200}>
+            <HoloCard title="Capital Settings" subtitle="Initial conditions" glowColor="cyan">
+              <div className="space-y-4">
+                <GlassInput label="Initial Capital ($)" value="100000" />
+                <GlassInput label="Position Size ($)" value="10000" />
+                <GlassInput label="Commission (%)" value="0.1" />
+              </div>
+            </HoloCard>
+            </AnimatedCard>
+
+            <AnimatedCard variant="pulse-magenta" delay={250}>
+            <HoloCard title="Risk Parameters" subtitle="Safety limits" glowColor="magenta">
+              <div className="space-y-4">
+                <GlassInput label="Stop Loss (%)" value="2" />
+                <GlassInput label="Take Profit (%)" value="5" />
+                <GlassInput label="Max Drawdown (%)" value="15" />
+              </div>
+            </HoloCard>
+            </AnimatedCard>
+          </div>
+        )}
+
+        {/* Results Tab */}
+        {activeTab === 'results' && (
+          <div className="space-y-6">
+            {/* Performance Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Total Return', value: '+147.8%', color: 'success', icon: '💰' },
+                { label: 'Win Rate', value: '73.2%', color: 'cyan', icon: '🎯' },
+                { label: 'Sharpe Ratio', value: '2.84', color: 'magenta', icon: '📈' },
+                { label: 'Max Drawdown', value: '-8.4%', color: 'error', icon: '📉' },
+              ].map((metric, idx) => (
+                <div
+                  key={metric.label}
+                  className="p-4 rounded glass-panel holo-border animate-fade-in-up"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: `1px solid ${theme.border.default}`,
+                    animationDelay: `${0.1 + idx * 0.1}s`,
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">{metric.icon}</span>
+                    <span className="text-sm" style={{ color: theme.text.tertiary }}>
+                      {metric.label}
+                    </span>
+                  </div>
+                  <div 
+                    className="text-2xl font-bold"
+                    style={{ color: theme.colors[metric.color as keyof typeof theme.colors] }}
+                  >
+                    {metric.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Equity Curve */}
+            <AnimatedCard variant="pulse-cyan" delay={100}>
+            <HoloCard title="Equity Curve" subtitle="Portfolio value over time" glowColor="cyan">
+              <div 
+                className="h-80 flex items-center justify-center rounded"
+                style={{ background: 'rgba(0, 0, 0, 0.3)' }}
+              >
+                <div className="text-center">
+                  <div className="text-6xl mb-4">📈</div>
+                  <p style={{ color: theme.text.tertiary }}>
+                    Equity curve visualization will load here
+                  </p>
+                </div>
+              </div>
+            </HoloCard>
+            </AnimatedCard>
+
+            {/* Detailed Stats */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AnimatedCard variant="pulse-magenta" delay={200}>
+              <HoloCard title="Trade Statistics" subtitle="Execution metrics" glowColor="magenta">
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Total Trades</span>
+                    <span className="font-bold" style={{ color: theme.colors.neonCyan }}>1,847</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Winning Trades</span>
+                    <span className="font-bold" style={{ color: theme.colors.success }}>1,352</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Losing Trades</span>
+                    <span className="font-bold" style={{ color: theme.colors.error }}>495</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Avg Win</span>
+                    <span className="font-bold" style={{ color: theme.colors.success }}>+$847</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Avg Loss</span>
+                    <span className="font-bold" style={{ color: theme.colors.error }}>-$412</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Profit Factor</span>
+                    <span className="font-bold" style={{ color: theme.colors.neonMagenta }}>2.47</span>
+                  </div>
+                </div>
+              </HoloCard>
+              </AnimatedCard>
+
+              <AnimatedCard variant="pulse-cyan" delay={250}>
+              <HoloCard title="Risk Metrics" subtitle="Risk analysis" glowColor="cyan">
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Sharpe Ratio</span>
+                    <span className="font-bold" style={{ color: theme.colors.success }}>2.84</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Sortino Ratio</span>
+                    <span className="font-bold" style={{ color: theme.colors.success }}>3.21</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Max Drawdown</span>
+                    <span className="font-bold" style={{ color: theme.colors.error }}>-8.4%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Volatility</span>
+                    <span className="font-bold" style={{ color: theme.colors.warning }}>14.2%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: theme.text.secondary }}>Calmar Ratio</span>
+                    <span className="font-bold" style={{ color: theme.colors.neonCyan }}>17.6</span>
+                  </div>
+                </div>
+              </HoloCard>
+              </AnimatedCard>
+            </div>
+          </div>
+        )}
+
+        {/* History Tab */}
+        {activeTab === 'history' && (
+          <AnimatedCard variant="pulse-cyan" delay={100}>
+          <HoloCard title="Backtest History" subtitle="Previous test runs" glowColor="cyan">
+            <div className="space-y-3">
+              {[
+                { date: '2024-11-25', strategy: 'Neural Momentum Alpha', return: '+147.8%', trades: 1847 },
+                { date: '2024-11-20', strategy: 'Mean Reversion Pro', return: '+98.4%', trades: 1242 },
+                { date: '2024-11-15', strategy: 'Breakout Hunter', return: '+124.2%', trades: 891 },
+                { date: '2024-11-10', strategy: 'Grid Trading Bot', return: '+67.8%', trades: 2147 },
+              ].map((test, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-4 rounded glass-panel hover:scale-[1.01] transition-all"
+                  style={{
+                    background: 'rgba(0, 0, 0, 0.3)',
+                    border: `1px solid ${theme.border.subtle}`,
+                  }}
+                >
+                  <div>
+                    <div className="font-bold mb-1" style={{ color: theme.text.primary }}>
+                      {test.strategy}
+                    </div>
+                    <div className="text-sm" style={{ color: theme.text.tertiary }}>
+                      {test.date}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="text-center">
+                      <div className="text-xs mb-1" style={{ color: theme.text.tertiary }}>Return</div>
+                      <div className="font-bold" style={{ color: theme.colors.success }}>
+                        {test.return}
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-xs mb-1" style={{ color: theme.text.tertiary }}>Trades</div>
+                      <div className="font-bold" style={{ color: theme.colors.neonCyan }}>
+                        {test.trades}
+                      </div>
+                    </div>
+                    <HoloButton variant="ghost" size="sm" className="hover-lift transition-smooth">
+                      View →
+                    </HoloButton>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </HoloCard>
+          </AnimatedCard>
+        )}
+      </div>
+      </HoloRefract>
+      </PageTransition>
+    </SciFiShell>
   );
 }

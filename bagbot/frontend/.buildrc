@@ -1,3 +1,0 @@
-# Build cache buster - Force Render to use updated build command
-BUILD_VERSION=2
-BUILD_DATE=2025-11-22

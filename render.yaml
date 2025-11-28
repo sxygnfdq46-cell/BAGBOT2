@@ -29,7 +29,7 @@ services:
     plan: free
     rootDir: bagbot/frontend
     buildCommand: npm install && npm run build
-    startCommand: cd .next/standalone && HOSTNAME=0.0.0.0 PORT=$PORT node server.js
+    startCommand: node .next/standalone/server.js
     autoDeploy: true
     envVars:
       - key: NODE_ENV
@@ -38,3 +38,5 @@ services:
         value: https://bagbot2-backend.onrender.com
       - key: PORT
         value: "10000"
+      - key: HOSTNAME
+        value: "0.0.0.0"
