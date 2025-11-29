@@ -32,7 +32,7 @@ import {
   type PipelineMetrics,
   type NodeHealth,
   type NodeStatus
-} from '@/app/lib/intelligence/IntelligencePipelineCoordinator';
+} from '../../lib/intelligence/IntelligencePipelineCoordinator';
 
 // ─────────────────────────────────────────────────────────────────
 // TYPES
