@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { SystemDashboardGrid } from '@/components/ui';
+import { SystemDashboardGrid } from '../../components/ui';
 import { SciFiShell } from '../sci-fi-shell';
-import PageTransition from '@/components/PageTransition';
-import SystemOverviewDeck from '@/components/admin/SystemOverviewDeck';
-import UserIntelligenceBoard from '@/components/admin/UserIntelligenceBoard';
-import OperationalControlHub from '@/components/admin/OperationalControlHub';
-import SystemDiagnosticsPanel from '@/components/admin/SystemDiagnosticsPanel';
+import PageTransition from '../../components/PageTransition';
+import SystemOverviewDeck from '../../components/admin/SystemOverviewDeck';
+import UserIntelligenceBoard from '../../components/admin/UserIntelligenceBoard';
+import OperationalControlHub from '../../components/admin/OperationalControlHub';
+import SystemDiagnosticsPanel from '../../components/admin/SystemDiagnosticsPanel';
 
 /**
  * 🚀 LEVEL 17.1 — ADMIN PAGE SHELL

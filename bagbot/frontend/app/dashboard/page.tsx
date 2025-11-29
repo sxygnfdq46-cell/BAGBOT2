@@ -6,10 +6,10 @@ import { HUDWidget } from '@/design-system/components/hud/HUDWidget';
 import { NeonTabs } from '@/design-system/components/tabs/NeonTabs';
 import { useTheme } from '../providers';
 import { useState, useEffect, useRef } from 'react';
-import PageTransition from '@/components/PageTransition';
-import AnimatedText from '@/components/AnimatedText';
-import AnimatedCard from '@/components/AnimatedCard';
-import DataSpark from '@/components/DataSpark';
+import PageTransition from '../../components/PageTransition';
+import AnimatedText from '../../components/AnimatedText';
+import AnimatedCard from '../../components/AnimatedCard';
+import DataSpark from '../../components/DataSpark';
 import { useAPI, useAPIPoll } from '@/lib/hooks/useAPI';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
 import { dashboardService, marketService } from '@/services';
@@ -23,14 +23,14 @@ import {
   QuantumField,
   ParallaxDepth,
   HyperspaceThread
-} from '@/components/quantum/QuantumEffects';
+} from '../../components/quantum/QuantumEffects';
 import { 
   NeuralSynapse,
   HaloFlux,
   QuantumRipple,
   AuroraStream,
   AdaptiveHUD
-} from '@/components/ascension/AscensionEffects';
+} from '../../components/ascension/AscensionEffects';
 import { useBehavior } from '../engine/bic/BehaviorProvider';
 import { useCognitiveFusion } from '../engine/cognitive/CognitiveFusionProvider';
 import { useEntity } from '../engine/entity/EntityProvider';

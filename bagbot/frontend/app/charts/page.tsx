@@ -6,13 +6,13 @@ import { NeonTabs } from '@/design-system/components/tabs/NeonTabs';
 import { HoloButton } from '@/design-system/components/buttons/HoloButton';
 import { useTheme } from '../providers';
 import { useState } from 'react';
-import PageTransition from '@/components/PageTransition';
-import AnimatedText from '@/components/AnimatedText';
-import AnimatedCard from '@/components/AnimatedCard';
+import PageTransition from '../../components/PageTransition';
+import AnimatedText from '../../components/AnimatedText';
+import AnimatedCard from '../../components/AnimatedCard';
 import { useAPI, useAPIPoll } from '@/lib/hooks/useAPI';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
-import { ParticleUniverse, CameraDrift, HoloRefract } from '@/components/quantum/QuantumEffects';
-import { GravityWarp, QuantumRipple } from '@/components/ascension/AscensionEffects';
+import { ParticleUniverse, CameraDrift, HoloRefract } from '../../components/quantum/QuantumEffects';
+import { GravityWarp, QuantumRipple } from '../../components/ascension/AscensionEffects';
 
 export default function ChartsPage() {
   const { theme } = useTheme();

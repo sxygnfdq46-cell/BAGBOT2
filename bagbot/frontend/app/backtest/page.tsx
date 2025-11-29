@@ -7,12 +7,12 @@ import { GlassInput } from '@/design-system/components/inputs/GlassInput';
 import { NeonTabs } from '@/design-system/components/tabs/NeonTabs';
 import { useTheme } from '../providers';
 import { useState } from 'react';
-import PageTransition from '@/components/PageTransition';
-import AnimatedText from '@/components/AnimatedText';
-import AnimatedCard from '@/components/AnimatedCard';
+import PageTransition from '../../components/PageTransition';
+import AnimatedText from '../../components/AnimatedText';
+import AnimatedCard from '../../components/AnimatedCard';
 import { useAPI, useAPIMutation } from '@/lib/hooks/useAPI';
-import { ParticleUniverse, QuantumField, HoloRefract } from '@/components/quantum/QuantumEffects';
-import { AdaptiveHUD, AuroraStream } from '@/components/ascension/AscensionEffects';
+import { ParticleUniverse, QuantumField, HoloRefract } from '../../components/quantum/QuantumEffects';
+import { AdaptiveHUD, AuroraStream } from '../../components/ascension/AscensionEffects';
 
 export default function BacktestPage() {
   const { theme } = useTheme();

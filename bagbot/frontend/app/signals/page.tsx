@@ -5,13 +5,13 @@ import { HoloCard } from '@/design-system/components/cards/HoloCard';
 import { NeonTabs } from '@/design-system/components/tabs/NeonTabs';
 import { useTheme } from '../providers';
 import { useState, useEffect } from 'react';
-import PageTransition from '@/components/PageTransition';
-import AnimatedText from '@/components/AnimatedText';
-import AnimatedCard from '@/components/AnimatedCard';
+import PageTransition from '../../components/PageTransition';
+import AnimatedText from '../../components/AnimatedText';
+import AnimatedCard from '../../components/AnimatedCard';
 import { useAPIPoll } from '@/lib/hooks/useAPI';
 import { useWebSocket } from '@/lib/hooks/useWebSocket';
-import { SignalStorm, HoloRefract, ParticleUniverse } from '@/components/quantum/QuantumEffects';
-import { SignalRipple, AuroraStream, NeuralSynapse } from '@/components/ascension/AscensionEffects';
+import { SignalStorm, HoloRefract, ParticleUniverse } from '../../components/quantum/QuantumEffects';
+import { SignalRipple, AuroraStream, NeuralSynapse } from '../../components/ascension/AscensionEffects';
 
 export default function SignalsPage() {
   const { theme } = useTheme();

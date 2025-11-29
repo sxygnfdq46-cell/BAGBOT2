@@ -5,13 +5,13 @@ import { HoloCard } from '@/design-system/components/cards/HoloCard';
 import { HoloButton } from '@/design-system/components/buttons/HoloButton';
 import { NeonSwitch } from '@/design-system/components/inputs/NeonSwitch';
 import { useTheme } from '../providers';
-import PageTransition from '@/components/PageTransition';
-import AnimatedText from '@/components/AnimatedText';
-import AnimatedCard from '@/components/AnimatedCard';
+import PageTransition from '../../components/PageTransition';
+import AnimatedText from '../../components/AnimatedText';
+import AnimatedCard from '../../components/AnimatedCard';
 import { useAPI, useAPIMutation } from '@/lib/hooks/useAPI';
 import { useState, useEffect } from 'react';
-import { ParticleUniverse, QuantumField, HoloRefract } from '@/components/quantum/QuantumEffects';
-import { AdaptiveHUD, GravityWarp } from '@/components/ascension/AscensionEffects';
+import { ParticleUniverse, QuantumField, HoloRefract } from '../../components/quantum/QuantumEffects';
+import { AdaptiveHUD, GravityWarp } from '../../components/ascension/AscensionEffects';
 
 export default function StrategiesPage() {
   const { theme } = useTheme();

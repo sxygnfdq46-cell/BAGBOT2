@@ -4,12 +4,12 @@ import { SciFiShell } from '../sci-fi-shell';
 import { HoloCard } from '@/design-system/components/cards/HoloCard';
 import { HUDWidget } from '@/design-system/components/hud/HUDWidget';
 import { useTheme } from '../providers';
-import PageTransition from '@/components/PageTransition';
-import AnimatedText from '@/components/AnimatedText';
-import AnimatedCard from '@/components/AnimatedCard';
+import PageTransition from '../../components/PageTransition';
+import AnimatedText from '../../components/AnimatedText';
+import AnimatedCard from '../../components/AnimatedCard';
 import { useAPI, useAPIPoll } from '@/lib/hooks/useAPI';
-import { ParticleUniverse, HoloRefract, QuantumField, CameraDrift } from '@/components/quantum/QuantumEffects';
-import { TemporalDisplacement, HaloFlux } from '@/components/ascension/AscensionEffects';
+import { ParticleUniverse, HoloRefract, QuantumField, CameraDrift } from '../../components/quantum/QuantumEffects';
+import { TemporalDisplacement, HaloFlux } from '../../components/ascension/AscensionEffects';
 
 export default function SystemsPage() {
   const { theme } = useTheme();

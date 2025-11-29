@@ -8,12 +8,12 @@ import { HoloButton } from '@/design-system/components/buttons/HoloButton';
 import { NeonTabs } from '@/design-system/components/tabs/NeonTabs';
 import { useTheme } from '../providers';
 import { useState } from 'react';
-import PageTransition from '@/components/PageTransition';
-import AnimatedText from '@/components/AnimatedText';
-import AnimatedCard from '@/components/AnimatedCard';
+import PageTransition from '../../components/PageTransition';
+import AnimatedText from '../../components/AnimatedText';
+import AnimatedCard from '../../components/AnimatedCard';
 import { useAPI, useAPIMutation } from '@/lib/hooks/useAPI';
-import { ParticleUniverse } from '@/components/quantum/QuantumEffects';
-import { AuroraBackground } from '@/components/ascension/AscensionEffects';
+import { ParticleUniverse } from '../../components/quantum/QuantumEffects';
+import { AuroraBackground } from '../../components/ascension/AscensionEffects';
 
 export default function SettingsPage() {
   const { theme } = useTheme();
